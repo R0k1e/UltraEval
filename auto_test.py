@@ -12,16 +12,16 @@ import signal
 languages = ['zh']
 # model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", 'aya', 'aya-101', "UltraLink"]
 # model_list = ['aya', 'aya-101']
-model_list = ['aya-101']
+# model_list = ['aya-101']
 # model_list = ['llama-7b']
-# model_list = ['UltraLink']
+model_list = ['UltraLink']
 # test_list = ['humaneval', 'mgsm', 'omgeval', 'm-mmlu', 'belebele', 'xwinograd', 'm-arc', 'm-hellaswag']
 # test_list = ['m-mmlu']
 # port = 6325
 # gpu_id= "0,1"
 # test_list = ['m-hellaswag']
 test_list = ['m-arc']
-port = 6326
+port = 6327
 gpu_id= "2,3"
 print(f"gpu_id: {gpu_id}")
 print(f"port: {port}")
@@ -86,10 +86,8 @@ if __name__ == '__main__':
             --gpuid  {gpu_id}\
             --port {port}""", 
             shell=True)
-        pid = p.pid + 1
-        time.sleep(60)
+        time.sleep(90)
         auto_test(model)
-        print(f"kill -9 %")
         os.system(f"kill -9 %")
         os.system(f"kill -9 %")
         

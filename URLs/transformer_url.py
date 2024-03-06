@@ -68,14 +68,16 @@ def Generate(prompts,model, params_dict, ppl_mode=False):
     else:
         outputs = model.generate(
             input_ids=inputs["input_ids"],attention_mask=inputs["attention_mask"], 
-            max_length=params_dict["max_tokens"],
+            max_new_tokens=params_dict["max_tokens"],
             do_sample=True,
             temperature=params_dict["temperature"],
             top_p=params_dict["top_p"],
         )
+        print("finish generate")
         outputs = tokenizer.batch_decode(
             outputs.to("cpu"), skip_special_tokens=True
         )
+        print("decode finish")
         for i in range(len(outputs)):
             if outputs[i].startswith(prompts[i]):
                 outputs[i] = outputs[i][len(prompts[i]):]
@@ -94,7 +96,7 @@ def load_model():
 
 model = load_model()
 
-@app.route("/vllm-url-infer", methods=["POST"])
+@app.route("/infer", methods=["POST"])
 def main():
     datas = request.get_json()
     params = datas["params"]

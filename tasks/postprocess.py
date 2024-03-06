@@ -324,6 +324,109 @@ class MathPost:
                     return self.normalize_final_answer(maybe_ans)
         return self.normalize_final_answer(text.split('.')[0])
 
+class MGSMZeroPost:
+    def __init__(self):
+        pass
+
+    def __call__(self, raw_outputs, processed_outputs):
+        if isinstance(processed_outputs, str):
+            processed_outputs = [processed_outputs]
+        processed_outputs_ = [self.postprocess(text) for text in processed_outputs]
+        return raw_outputs, processed_outputs_
+
+    def postprocess(self, text):
+        ans_re = re.compile(r"The answer is: (\-?[0-9\.\,]+)")
+        m = ans_re.search(text)
+        if m is not None:
+            text = m.group(1).strip().replace(",", "")
+        else:
+            ans_re_2 = re.compile(r"#### (\-?[0-9\.\,]+)")
+            m_2 = ans_re_2.search(text)
+            if m_2 is not None:
+                text = m_2.group(1).strip().replace(",", "")
+            else:
+                if ">>" in text and text[text.rfind(">>") + 2:].strip().split():
+                    text = text[text.rfind(">>") + 2:].strip().split()[0]
+                    text = text.strip("$")
+                    text = text.replace(",", '')
+                    text = text.rstrip(".")
+                elif "=" in text and text[text.rfind("=") + 1:].strip().split():
+                    text = text[text.rfind("=") + 1:].strip().split()[0]
+                    text = text.strip("$")
+                    text = text.replace(",", '')
+                    text = text.rstrip(".")
+                else:
+                    for text in reversed(text.split()):
+                        if text.isdigit():
+                            return text
+
+        text = re.sub(r'[^0-9]', '', text)
+        return text.strip()
+    
+class HumanEvalPostWizardCode:
+    def __init__(self):
+        pass
+
+    def __call__(self, raw_outputs, processed_outputs):
+        if isinstance(processed_outputs, str):
+            processed_outputs = [processed_outputs]
+
+        processed_outputs_ = [self.humaneval_gpt_postprocess(text) for text in processed_outputs]
+        return raw_outputs, processed_outputs_
+
+    @staticmethod
+    def humaneval_gpt_postprocess(code: str) -> str:
+        """Better answer postprocessor for better instruction-aligned models like
+        GPT."""
+        code = code.replace("\t", "    ")
+        completion = code
+        completion = completion.replace("\r", "")
+        completion = completion.strip()
+        if '```python' in completion:
+            def_line = completion.index('```python')
+            completion = completion[def_line:].strip()
+            completion = completion.replace('```python', '')
+            try:
+                next_line = completion.index('```')
+                completion = completion[:next_line].strip()
+            except:
+                pass
+        else:
+            try:
+                search_result = re.search(r'```\n(.*)```\n', completion, re.DOTALL)
+                completion = search_result.group(1)
+            except:
+                pass
+        if "__name__ == \"__main__\"" in completion:
+            try:
+                next_line = completion.index('if __name__ == "__main__":')
+                completion = completion[:next_line].strip()
+            except:
+                pass
+        if "# Example usage" in completion:
+            next_line = completion.index('# Example usage')
+            completion = completion[:next_line].strip()
+        # the following codes are used to deal with the outputs of code-alpaca
+        if "The solution is:" in completion:
+            def_line = completion.index("The solution is:")
+            completion = completion[def_line:].strip()
+            completion = completion.replace('The solution is:', '')
+            try:
+                next_line = completion.index('\n\nThe answer is:')
+                completion = completion[:next_line].strip()
+            except:
+                completion = completion.strip()
+        if "The answer is:" in completion:
+            def_line = completion.index("The answer is:")
+            completion = completion[def_line:].strip()
+            completion = completion.replace('The answer is:', '')
+            try:
+                next_line = completion.index('\n\nThe answer is:')
+                completion = completion[:next_line].strip()
+            except:
+                completion = completion.strip()
+        return completion
+
 
 class TheoremQAPost:
     def __init__(self):
@@ -1007,7 +1110,9 @@ POSTPROCESS_REGISTRY = {
     "agieval_multiple_answer_post": AGIEvalMultipleAnswerPost,
     "common_math_post": CommonMathPost,
     "new_mbpp_post": NewMbppPost,
-    "bbh_post": BBHPost
+    "bbh_post": BBHPost,
+    "mgsm_zero_post":MGSMZeroPost,
+    "humaneval_post_wizardcode": HumanEvalPostWizardCode,
 }
 
 
