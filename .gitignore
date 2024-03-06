@@ -10,3 +10,5 @@ wip-*
 RawData.zip
 result/
 logs*/
+.vscode/
+

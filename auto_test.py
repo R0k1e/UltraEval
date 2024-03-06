@@ -8,6 +8,7 @@ import signal
 
 # languages = ['en', 'zh', 'es', 'ru', 'fr']
 # languages = ['en', 'es', 'ru', 'fr']
+# languages = ['zh', 'es', 'ru']
 languages = ['zh']
 # model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", 'aya', 'aya-101', "UltraLink"]
 # model_list = ['aya', 'aya-101']
@@ -86,13 +87,11 @@ if __name__ == '__main__':
             --port {port}""", 
             shell=True)
         pid = p.pid + 1
-        time.sleep(120)
+        time.sleep(60)
         auto_test(model)
         print(f"kill -9 %")
         os.system(f"kill -9 %")
         os.system(f"kill -9 %")
-        os.kill(pid, signal.SIGKILL)
-        time.sleep(30)
         
     if 'humaneval' in test_list:
         input_dir = "/home/wanghaoyu/UltraEval/result/humaneval"

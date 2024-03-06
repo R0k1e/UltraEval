@@ -72,7 +72,6 @@ def Generate(prompts,model, params_dict, ppl_mode=False):
             do_sample=True,
             temperature=params_dict["temperature"],
             top_p=params_dict["top_p"],
-            top_k=params_dict["top_k"],
         )
         outputs = tokenizer.batch_decode(
             outputs.to("cpu"), skip_special_tokens=True
