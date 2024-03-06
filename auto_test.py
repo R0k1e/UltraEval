@@ -4,31 +4,33 @@ from transform_humaneval import transform_humaneval
 from omgeval import omg_eval
 import time
 import signal
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--gpu_id', type=str, help='gpu id')
+parser.add_argument('--port', type=int, help='port')
+parser.add_argument('--model_list', type=str, help='model list')
+parser.add_argument('--test_list', type=str, help='test list')
+parser.add_argument('--languages', type=str,  help='languages')
+args = parser.parse_args()
+
+
 
 
 # languages = ['en', 'zh', 'es', 'ru', 'fr']
-# languages = ['en', 'es', 'ru', 'fr']
-# languages = ['zh', 'es', 'ru']
-languages = ['zh']
+languages = args.languages.split(',')
 # model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", 'aya', 'aya-101', "UltraLink"]
-# model_list = ['aya', 'aya-101']
-# model_list = ['aya-101']
-# model_list = ['llama-7b']
-model_list = ['UltraLink']
+model_list = args.model_list.split(',')
 # test_list = ['humaneval', 'mgsm', 'omgeval', 'm-mmlu', 'belebele', 'xwinograd', 'm-arc', 'm-hellaswag']
-# test_list = ['m-mmlu']
-# port = 6325
-# gpu_id= "0,1"
-# test_list = ['m-hellaswag']
-test_list = ['m-arc']
-port = 6327
-gpu_id= "2,3"
+test_list = args.test_list.split(',')
+port = args.port
+gpu_id= args.gpu_id
 print(f"gpu_id: {gpu_id}")
 print(f"port: {port}")
 print(f"model_list: {model_list}")
 print(f"test_list: {test_list}")
 print(f"languages: {languages}")
-all_test_list = ['belebele','m-mmlu', 'xwinograd', 'm-arc', 'm-hellaswag']
+all_test_list = ['belebele','xwinograd']
 
 template_dict = {
     'llama-7b': 'llama',
@@ -40,12 +42,14 @@ template_dict = {
     'chimera-13b': 'phoenix',
     'UltraLink': 'okapi',
     'aya': 'okapi',
+    'aya-new': 'okapi',
     'aya-101': 'null',
 }
 
 model_path = {
     'UltraLink': "/data/public/wangshuo/exp/ft-5lang-omg-13b/ckpts/checkpoints/epoch_2_hf",
     'aya': "/home/wanghaoyu/mAlign-shuo-dev/aya-5lang-lr2e-5/checkpoints/step_23400/_hf",
+    'aya-new': "/home/wanghaoyu/mAlign-shuo-dev/aya-5lang-paperset/checkpoints/step_11700_hf",
     'aya-101': "/home/wanghaoyu/aya/aya-101",
     'bloom': "/data/public/wangshuo/bloomz-7b1-mt",
     'okapi': "/data/public/wangshuo/PolyLM-multialpaca-13b",
@@ -61,9 +65,9 @@ model_path = {
 
 def auto_test(model):
     if model == 'aya-101':
-        batch_size = 4
+        batch_size = 16
     else:
-        batch_size = 64
+        batch_size = 256    
     print(f"batch_size: {batch_size}")
     template_type = template_dict[model]
     for test_set in test_list:
@@ -96,5 +100,5 @@ if __name__ == '__main__':
         result = transform_humaneval(input_dir)
         for item in result:
             print(result[item])
-    if 'omgeval' in test_list:
-        omg_eval(model_list, languages)
+    # if 'omgeval' in test_list:
+    #     omg_eval(model_list, languages)

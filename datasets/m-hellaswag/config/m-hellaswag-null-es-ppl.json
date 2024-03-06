@@ -1,0 +1,1 @@
+{"task_name": "m-hellaswag_null_es", "path": "datasets/m-hellaswag/data/es.jsonl", "description": "", "transform": "datasets/m-hellaswag/transform_ppl_v0.py", "fewshot": 0, "generate": {"method": "loglikelihood", "params": ""}, "postprocess": "general_torch_ppl_norm", "metric": {"accuracy": {"evaluation": {"type": "log_prob"}}}}

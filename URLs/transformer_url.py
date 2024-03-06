@@ -43,7 +43,7 @@ params_dict = {
 }
 
 def Generate(prompts,model, params_dict, ppl_mode=False):
-    print("Generate function")
+    # print("Generate function")
     inputs = tokenizer(
         prompts,
         max_length=2048,
@@ -55,7 +55,7 @@ def Generate(prompts,model, params_dict, ppl_mode=False):
     if ppl_mode:   
         outputs = model.generate(
             input_ids=inputs["input_ids"],attention_mask=inputs["attention_mask"], 
-            max_length=params_dict["max_tokens"],
+            max_new_tokens=params_dict["max_tokens"],
             output_scores=True,
             return_dict_in_generate=True,
         )
@@ -66,18 +66,26 @@ def Generate(prompts,model, params_dict, ppl_mode=False):
         return all_logits
         
     else:
-        outputs = model.generate(
-            input_ids=inputs["input_ids"],attention_mask=inputs["attention_mask"], 
-            max_new_tokens=params_dict["max_tokens"],
-            do_sample=True,
-            temperature=params_dict["temperature"],
-            top_p=params_dict["top_p"],
-        )
-        print("finish generate")
+        if params_dict['temperature'] != 0:
+            outputs = model.generate(
+                input_ids=inputs["input_ids"],attention_mask=inputs["attention_mask"], 
+                max_new_tokens=params_dict["max_tokens"],
+                do_sample=True,
+                temperature=params_dict["temperature"],
+                top_p=params_dict["top_p"],
+            )
+        else:
+            outputs = model.generate(
+                input_ids=inputs["input_ids"],attention_mask=inputs["attention_mask"], 
+                max_new_tokens=params_dict["max_tokens"],
+                do_sample=False,
+                top_p=params_dict["top_p"],
+            )
+        # print("finish generate")
         outputs = tokenizer.batch_decode(
             outputs.to("cpu"), skip_special_tokens=True
         )
-        print("decode finish")
+        # print("decode finish")
         for i in range(len(outputs)):
             if outputs[i].startswith(prompts[i]):
                 outputs[i] = outputs[i][len(prompts[i]):]
@@ -118,7 +126,7 @@ def main():
     if "prompt_logprobs" in params and params["prompt_logprobs"] is not None:
         for logits in outputs:
             prompt_logprobs = logits
-            logp_list = [list(d.values())[0] for d in prompt_logprobs[1:]]
+            logp_list = [d[0].item() for d in prompt_logprobs[1:]]
             res.append(logp_list)
         return jsonify(res)
     else:

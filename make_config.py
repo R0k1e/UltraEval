@@ -6,7 +6,7 @@ def make_mgsm_config():
     input_path = "/home/wanghaoyu/UltraEval/datasets/mgsm/config/mgsm_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'es', 'fr', 'ru']
-    model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b"]
+    model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null"]
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -41,7 +41,8 @@ def make_mgsm_config():
         'polychat': r"<|user|>\n{data['question'].strip()}<|assistant|>\n",
         'guanaco': r"### Input:\nUser: {data['question']}\n### Response:\n",
         'phoenix': r"Human: <s>{data['question']}</s>Assistant: <s>",
-        'guanaco-13b': r"### Human: {data['question']}\n### Assistant:"
+        'guanaco-13b': r"### Human: {data['question']}\n### Assistant:",
+        'null': r"{data['question']}"
     }
 
 
@@ -73,7 +74,7 @@ def make_humaneval_config():
     input_path = "/home/wanghaoyu/UltraEval/datasets/humaneval/config/humaneval_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'es', 'fr', 'ru']
-    model_list = ['okapi', 'guanaco', 'phoenix', "guanaco-13b"]
+    model_list = ['okapi', 'guanaco', 'phoenix', "guanaco-13b", 'null']
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -111,7 +112,8 @@ def make_humaneval_config():
         'polychat': r"<|user|>\nINSTRUCTION\n{prompt.strip()}\n\n<|assistant|>\n",
         'guanaco': r"### Input:User:INSTRUCTION{prompt}### Response:",
         'phoenix': r"Human: <s>INSTRUCTION{prompt}</s>Assistant: <s>",
-        'guanaco-13b': r"### Human: INSTRUCTION{prompt}\n### Assistant:"
+        'guanaco-13b': r"### Human: INSTRUCTION{prompt}\n### Assistant:",
+        'null': r"INSTRUCTION{prompt}"
     }
 
 
@@ -134,7 +136,7 @@ def make_omgeval_config():
     input_path = "/home/wanghaoyu/UltraEval/datasets/omgeval/config/omgeval-en_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'es', 'fr', 'ru', 'ar']
-    model_list = ['okapi', 'guanaco', 'phoenix', 'llama', 'guanaco-13b']
+    model_list = ['okapi', 'guanaco', 'phoenix', 'llama', 'guanaco-13b', 'null']
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -158,7 +160,8 @@ def make_omgeval_config():
         'guanaco': r"### Input:\nUser: {data['question']}\n### Response:\n",
         'phoenix': r"Human: <s>{data['question']}</s>Assistant: <s>",
         'guanaco-13b': r"### Human: {data['question']}\n### Assistant:",
-        'llama' : r"""[INST] {data['question']} [/INST]"""
+        'llama' : r"""[INST] {data['question']} [/INST]""",
+        'null' : r"{data['question']}"
     }
     
     instructions = {
@@ -198,14 +201,13 @@ def make_mmlu_config():
     input_path = "./datasets/m-mmlu/config/m-mmlu_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'es', 'fr', 'ru']
-    model_list = ["all"]
+    model_list = ["okapi", 'null']
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
 
     for lang in lang_list:
         for model in model_list:
-            model = 'all'
             output_path = os.path.join("./datasets/m-mmlu/config/", f"m-mmlu-{model}-{lang}-gen.json")
             data = copy.deepcopy(origin_data)
             data['task_name'] = f'm-mmlu_{model}_{lang}'
@@ -216,6 +218,66 @@ def make_mmlu_config():
             data['postprocess'] = ''
             with open(output_path, 'w') as f:
                 json.dump(data, f)
+    
+    input_path = "/home/wanghaoyu/UltraEval/datasets/m-mmlu/"
+    
+    templates = {
+        'okapi': r"[INST] {prompt} [/INST]",
+        'null': r"{prompt}"
+    }
+
+
+    instructions = {
+        "en": r'"Question\n{{question}}\n\nOptions\n{{options}}\n\nAnswer\n"',
+        'zh': r'"问题\n{{question}}\n\n选项\n{{options}}\n\n答案\n"',
+        'es': r'"Pregunta\n{{question}}\n\nOpción\n{{options}}\n\nContesta\n"',
+        'fr': r'"Question\n{{question}}\n\nOptions\n{{options}}\n\nAnswer\n"',
+        'ru': r'"Вопрос\n{{question}}\n\nВарианты\n{{options}}\n\nОтвет\n"',
+    }
+
+
+    for lang in lang_list:
+        for model in model_list:
+            text = instructions[lang]
+            template = templates[model]
+            origin_code = f'''
+import random
+
+
+def transform(data, num_sample: int, r: random.Random, dataset_name: str):
+    choices = []
+    answer = None
+    for i, (kw, val) in enumerate(data["target_scores"].items()):
+        if val > 0:
+            answer = i
+        choices.append(kw)
+    if answer is None:
+        raise ValueError("Invalid data `{{}}`".format(data))
+
+    choice_style = "({{}})"
+
+    sep_style = " "
+
+    idx_style = "ABCD"
+    
+    prompt = {text}
+
+    options = []
+    for i, choice in enumerate(choices):
+        options.append(choice_style.format(idx_style[i]) + sep_style + choice)
+
+    answer = choice_style.format(idx_style[answer]) + "\\n"
+
+    prompt = prompt.format(question=data["question"], options="\\n".join(options))
+    
+    prompt = f"""{template}"""
+
+    return {{"input": prompt, "output": answer, "processed_output": answer}}
+
+    '''
+            output_path = os.path.join(input_path, f"transform_gen_{model}_{lang}.py")  
+            with open(output_path, 'w') as f:
+                f.write(origin_code)
                 
 def make_belebele_config():
     input_path = "datasets/Belebele/config/Belebele-en_gen.json"
@@ -267,7 +329,7 @@ def make_xwinograd_config():
     input_path = "datasets/xwinograd/config/xwinograd_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'fr', 'ru', "ja"]
-    model_list = ["all"]
+    model_list = ["okapi"]
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -287,6 +349,7 @@ def make_xwinograd_config():
                 json.dump(data, f)
     
     input_path = "/home/wanghaoyu/UltraEval/datasets/xwinograd/"
+    
 
     instructions = {
         "en": r"Passage: {data['question']}\nWhich of the following is a good sentence:\nA. {textA}\nB. {textB}\nOption: ",
@@ -308,6 +371,7 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     options = list(data["target_scores"].keys())
     textA, textB = options
     text = f"""{text}"""
+    text = f"""{template}"""
     index_of_correct_answer = list(data["target_scores"].values()).index(1)
     answers = ["A", "B"]
     correct_answer = answers[index_of_correct_answer]
@@ -322,14 +386,13 @@ def make_marc_config():
     input_path = "datasets/m-arc/config/m-arc_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'fr', 'ru', "es"]
-    model_list = ["all"]
+    model_list = ["okapi", 'null']
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
 
     for lang in lang_list:
         for model in model_list:
-            model = 'all'
             output_path = os.path.join("./datasets/m-arc/config/", f"m-arc-{model}-{lang}-gen.json")
             data = copy.deepcopy(origin_data)
             data['task_name'] = f'm-arc_{model}_{lang}'
@@ -342,6 +405,12 @@ def make_marc_config():
                 json.dump(data, f)
     
     input_path = "/home/wanghaoyu/UltraEval/datasets/m-arc/"
+    
+    templates = {
+        'okapi': r"[INST] {text} [/INST]",
+        'null': r"{text}"
+    }
+
 
     instructions = {
         "en": r'"Question:\n" + data["question"] + "\n" + "Requirement:\nChoose and respond with the letter of the correct answer.\n" + "Options:\n" + text + "Answer:\n"',
@@ -355,6 +424,7 @@ def make_marc_config():
     for lang in lang_list:
         for model in model_list:
             text = instructions[lang]
+            template = templates[model]
             origin_code = f'''
 import random
 
@@ -365,6 +435,7 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     for idx, option in enumerate(options):
         text += f"{{chr(65+idx)}}. {{option}}\\n"
     text = {text}
+    text = f"""{template}"""
     index_of_correct_answer = list(data["target_scores"].values()).index(1)
     correct_answer = chr(65 + index_of_correct_answer)
     return {{"input": text, "output": correct_answer, "processed_output": correct_answer}}
@@ -377,14 +448,13 @@ def make_mhellaswag_config():
     input_path = "datasets/hellaswag/config/hellaswag_ppl.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'fr', 'ru', "es"]
-    model_list = ["all"]
+    model_list = ["okapi", 'null']
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
 
     for lang in lang_list:
         for model in model_list:
-            model = 'all'
             output_path = os.path.join("./datasets/m-hellaswag/config/", f"m-hellaswag-{model}-{lang}-ppl.json")
             data = copy.deepcopy(origin_data)
             data['task_name'] = f'm-hellaswag_{model}_{lang}'
@@ -397,13 +467,40 @@ def make_mhellaswag_config():
             with open(output_path, 'w') as f:
                 json.dump(data, f)
                 
+    input_path = "/home/wanghaoyu/UltraEval/datasets/m-hellaswag/"
+    templates = {
+        'okapi': r"[INST] {data['question']} [/INST]",
+        'null' : r"{data['question']}"
+    }
+
+    for lang in lang_list:
+        for model in model_list:
+            text = templates[model]
+            origin_code = f'''
+import random    
+        
+def transform(data, num_sample: int, r: random.Random, dataset_name: str):
+    text = f"{text}"
+    correct_answer = [
+        key for key, value in data["target_scores"].items() if value == 1
+    ]
+    try:
+        correct_answer = correct_answer[0].strip()
+    except Exception:
+        correct_answer = ""
+
+    return {{"input": text, "output": correct_answer, "processed_output": correct_answer}}
+    '''
+            output_path = os.path.join(input_path, f"transform_gen_{model}_{lang}.py")  
+            with open(output_path, 'w') as f:
+                f.write(origin_code)
                 
 if __name__ == '__main__':
-    # make_humaneval_config()
-    # make_mgsm_config()
-    # make_omgeval_config()
-    # make_mmlu_config()
     # make_belebele_config()
     # make_xwinograd_config()
+    make_mgsm_config()
+    make_omgeval_config()
+    make_humaneval_config()
     make_marc_config()
     make_mhellaswag_config()
+    make_mmlu_config()
