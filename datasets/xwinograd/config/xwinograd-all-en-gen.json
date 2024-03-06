@@ -1,0 +1,1 @@
+{"task_name": "xwinograd_all_en", "path": "datasets/xwinograd/data/en.jsonl", "description": "", "transform": "datasets/xwinograd/transform_gen_all_en.py", "fewshot": 0, "generate": {"method": "generate", "params": "models/model_params/vllm_sample_v1.json"}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "prefix_match"}}}}

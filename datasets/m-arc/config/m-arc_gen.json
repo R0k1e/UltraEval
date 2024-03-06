@@ -1,0 +1,21 @@
+{
+    "task_name": "m-arc_m-arc-ar_gen",
+    "path": "datasets/m-arc/data/ar_test.json",
+    "description": "",
+    "transform": "datasets/m-arc/transform_gen_v0.py",
+    "fewshot": 0,
+    "batch_size": 256,
+    "generate": {
+        "method": "generate",
+        "params": ""
+    },
+    "model_postprocess": "general_torch",
+    "task_postprocess": "",
+    "metric": {
+        "accuracy": {
+            "evaluation": {
+                "type": "prefix_match"
+            }
+        }
+    }
+}

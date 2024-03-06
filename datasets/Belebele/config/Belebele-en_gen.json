@@ -1,0 +1,19 @@
+{
+    "task_name": "Belebele_en_gen",
+    "path": "datasets/Belebele/data/eng_Latn.jsonl",
+    "description": "",
+    "transform": "datasets/Belebele/transform_gen_v0.py",
+    "fewshot": 5,
+    "generate": {
+        "method": "generate",
+        "params": ""
+    },
+    "postprocess": "",
+    "metric": {
+        "accuracy": {
+            "evaluation": {
+                "type": "prefix_match"
+            }
+        }
+    }
+}

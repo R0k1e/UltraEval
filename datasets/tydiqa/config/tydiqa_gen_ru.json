@@ -1,0 +1,24 @@
+{
+    "task_name": "tydiqa_ru",
+    "path": "datasets/tydiqa/data/russian.jsonl",
+    "description": "",
+    "transform": "datasets/tydiqa/transform_gen_v0.py",
+    "fewshot": 0,
+    "generate": {
+        "method": "generate",
+        "params": ""
+    },
+    "postprocess": "exact_match_post",
+    "metric": {
+        "f1_score": {
+            "evaluation": {
+                "type": "f1_score"
+            }
+        },
+        "accuracy": {
+            "evaluation": {
+                "type": "exact_match"
+            }
+        }
+    }
+}

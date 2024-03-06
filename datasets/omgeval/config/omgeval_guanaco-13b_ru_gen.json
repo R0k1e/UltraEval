@@ -1,0 +1,1 @@
+{"task_name": "omgeval_guanaco-13b_ru", "path": "datasets/omgeval/data/ru.jsonl", "description": "", "transform": "datasets/omgeval/transform_gen_guanaco-13b_ru.py", "fewshot": 0, "generate": {"method": "generate", "params": "models/model_params/vllm_sample_omg.json"}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "prefix_match"}}}}

@@ -1,0 +1,1 @@
+{"task_name": "mgsm_phoenix_es", "path": "datasets/mgsm/data/mgsm_es.jsonl", "description": "", "transform": "datasets/mgsm/transform_gen_phoenix_es.py", "fewshot": 0, "generate": {"method": "generate", "params": "models/model_params/vllm_sample_math_zero.json"}, "postprocess": "mgsm_zero_post", "metric": {"accuracy": {"evaluation": {"type": "exact_match"}}}}

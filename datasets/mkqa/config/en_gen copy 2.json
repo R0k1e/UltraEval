@@ -1,0 +1,24 @@
+{
+    "task_name": "en_gen",
+    "path": "datasets/mkqa/data/en.jsonl",
+    "description": "",
+    "transform": "datasets/mkqa/transform_gen_v0.py",
+    "fewshot": 0,
+    "generate": {
+        "method": "generate",
+        "params": ""
+    },
+    "postprocess": "exact_match_post",
+    "metric": {
+        "f1_score": {
+            "evaluation": {
+                "type": "f1_score"
+            }
+        },
+        "exact_match": {
+            "evaluation": {
+                "type": "exact_match"
+            }
+        }
+    }
+}

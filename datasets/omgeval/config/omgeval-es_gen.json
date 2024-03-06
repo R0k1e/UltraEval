@@ -1,0 +1,19 @@
+{
+    "task_name": "omgeval_es",
+    "path": "datasets/omgeval/data/es.jsonl",
+    "description": "",
+    "transform": "datasets/omgeval/transform_gen_v0.py",
+    "fewshot": 0,
+    "generate": {
+        "method": "generate",
+        "params": "models/model_params/vllm_sample_omg.json"
+    },
+    "postprocess": "",
+    "metric": {
+        "accuracy": {
+            "evaluation": {
+                "type": "prefix_match"
+            }
+        }
+    }
+}

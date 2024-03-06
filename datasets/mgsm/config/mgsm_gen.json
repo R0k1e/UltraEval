@@ -1,0 +1,19 @@
+{
+    "task_name": "mgsm",
+    "path": "datasets/mgsm/data/mgsm.jsonl",
+    "description": "",
+    "transform": "datasets/mgsm/transform_gen_v0.py",
+    "fewshot": 8,
+    "generate": {
+        "method": "generate",
+        "params": "models/model_params/vllm_sample_v1.json"
+    },
+    "postprocess": "mgsm_post",
+    "metric": {
+        "accuracy": {
+            "evaluation": {
+                "type": "exact_match"
+            }
+        }
+    }
+}

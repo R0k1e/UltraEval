@@ -34,6 +34,20 @@ def main():
     output_file_path = os.path.join(script_dir, output_path)
     os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
     convert(input_file_path, output_file_path)
+    input_path = "../../RawData/humaneval/Chinese_HumanEval.jsonl"
+    output_path = "./data/zh_humaneval.jsonl"
+    input_file_path = os.path.join(script_dir, input_path)
+    output_file_path = os.path.join(script_dir, output_path)
+    os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
+    convert(input_file_path, output_file_path)
+    languages = ["es", "fr", "ru"]
+    for lang in languages:
+        input_path = f"../../RawData/humaneval/humaneval_{lang}.json"
+        output_path = f"./data/{lang}_humaneval.jsonl"
+        input_file_path = os.path.join(script_dir, input_path)
+        output_file_path = os.path.join(script_dir, output_path)
+        os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
+        convert(input_file_path, output_file_path)
 
 
 if __name__ == "__main__":

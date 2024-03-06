@@ -1,10 +1,10 @@
 from URLs.dispatcher import GPUDispatcher
+import os
 
 # gunicorn config & hook
 
 gdp = GPUDispatcher()
-
-bind = "127.0.0.1:5002"
+bind = "127.0.0.1:"+str(os.getenv("VLLM_PORT"))
 workers = gdp.workers_num()
 wsgi_app = "URLs.vllm_url_m:app"
 proc_name = "infer"

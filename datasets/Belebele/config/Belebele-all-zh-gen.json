@@ -1,0 +1,1 @@
+{"task_name": "belebele_all_zh", "path": "datasets/Belebele/data/zh.jsonl", "description": "", "transform": "datasets/Belebele/transform_gen_v0.py", "fewshot": 5, "generate": {"method": "generate", "params": "models/model_params/vllm_sample_v1.json"}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "prefix_match"}}}}

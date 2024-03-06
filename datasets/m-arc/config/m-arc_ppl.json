@@ -1,0 +1,19 @@
+{
+    "task_name": "m-arc-es",
+    "path": "datasets/m-arc/data/es_test.json",
+    "description": "",
+    "transform": "datasets/m-arc/transform_ppl_v0.py",
+    "fewshot": 0,
+    "generate": {
+        "method": "loglikelihood",
+        "params": ""
+    },
+    "postprocess": "",
+    "metric": {
+        "accuracy": {
+            "evaluation": {
+                "type": "log_prob"
+            }
+        }
+    }
+}

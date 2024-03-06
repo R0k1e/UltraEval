@@ -1,0 +1,1 @@
+{"task_name": "m-mmlu_all_ru", "path": "datasets/m-mmlu/data/ru.jsonl", "description": "", "transform": "datasets/m-mmlu/transform_gen_v0.py", "fewshot": 5, "generate": {"method": "generate", "params": "models/model_params/vllm_sample_v1.json"}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "prefix_match"}}}}
