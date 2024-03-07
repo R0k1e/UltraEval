@@ -71,13 +71,6 @@ def auto_test(model):
     print(f"batch_size: {batch_size}")
     template_type = template_dict[model]
     for test_set in test_list:
-        if test_set in all_test_list:
-            template_type = "all"
-        for lang in languages:
-            os.system(f"bash scripts/{test_set}.sh {port} {model} {test_set}-{template_type}-{lang} {batch_size}")
-        
-if __name__ == '__main__':
-    for model in model_list:
         if model == 'aya-101':
             p = subprocess.Popen(f"""python URLs/transformer_url.py \
             --model_name  {model_path[model]}\
@@ -91,9 +84,15 @@ if __name__ == '__main__':
             --port {port}""", 
             shell=True)
         time.sleep(90)
+        if test_set in all_test_list:
+            template_type = "all"
+        for lang in languages:
+            os.system(f"bash scripts/{test_set}.sh {port} {model} {test_set}-{template_type}-{lang} {batch_size}")
+        os.system(f"kill -9 %")
+        os.system(f"kill -9 %")
+if __name__ == '__main__':
+    for model in model_list:
         auto_test(model)
-        os.system(f"kill -9 %")
-        os.system(f"kill -9 %")
         
     if 'humaneval' in test_list:
         input_dir = "/home/wanghaoyu/UltraEval/result/humaneval"
