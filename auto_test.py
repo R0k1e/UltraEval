@@ -65,7 +65,7 @@ model_path = {
 
 def auto_test(model):
     if model == 'aya-101':
-        batch_size = 16
+        batch_size = 8
     else:
         batch_size = 256    
     print(f"batch_size: {batch_size}")
@@ -88,14 +88,17 @@ def auto_test(model):
             template_type = "all"
         for lang in languages:
             os.system(f"bash scripts/{test_set}.sh {port} {model} {test_set}-{template_type}-{lang} {batch_size}")
+        os.system(f"kill -9 {p.pid}")
+        os.system(f"kill -9 {p.pid + 1}")
         os.system(f"kill -9 %")
         os.system(f"kill -9 %")
+        time.sleep(30)
 if __name__ == '__main__':
     for model in model_list:
         auto_test(model)
         
     if 'humaneval' in test_list:
-        input_dir = "/home/wanghaoyu/UltraEval/result/humaneval"
+        input_dir = "。/result/humaneval"
         result = transform_humaneval(input_dir)
         for item in result:
             print(result[item])

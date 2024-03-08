@@ -44,12 +44,26 @@ class GeneralTorchPPLNorm:
             if all(item == items[0] for item in items):
                 prefix.append(items[0])
             else:
-                break
+                break            
         processed_lists = [
             -(sum(lst[len(prefix):]) / len(lst[len(prefix):])) for lst in inner_lists
         ]
         return processed_lists
 
+class TransformerPPLNorm:
+    def __init__(self):
+        pass
+
+    def __call__(self, result, request):
+        process_outputs = [self.process_inner_lists(sublist) for sublist in result]
+        return result, process_outputs
+
+    def process_inner_lists(self, inner_lists):
+        transposed = list(zip(*inner_lists))
+        processed_lists = [
+            -(sum(lst) / len(lst)) for lst in inner_lists
+        ]
+        return processed_lists
 
 class BBHPost:
     def __init__(self):
@@ -1091,6 +1105,7 @@ POSTPROCESS_REGISTRY = {
     "general_torch": GeneralTorch,
     "general_torch_ppl": GeneralTorchPPL,
     "general_torch_ppl_norm": GeneralTorchPPLNorm,
+    'transformer_ppl_norm': TransformerPPLNorm,
     "exact_match_post": ExactMatchPost,
     "math_post": MathPost,
     "until_return_post": UntilReturnPost,

@@ -1,8 +1,8 @@
 import json
 import os
 import subprocess
+import argparse
 import sys
-sys.patj
 
 def omg_eval(models, languages):
     instance_path = "./result/omgeval"
@@ -62,8 +62,18 @@ def omg_eval(models, languages):
     
     
 if __name__ == '__main__':
-    models = ['aya', 'aya-101']
+    # models = ['aya', 'aya-101']
+    models = ['aya']
     # models = ['guanaco-7b']
-    languages = ['en', 'fr', 'es', 'ru', 'zh']
+    # languages = ['en', 'fr', 'es', 'ru', 'zh']
+    languages = ['zh']
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--models', nargs='+', default=models)
+    parser.add_argument('--languages', nargs='+', default=languages)
+    args = parser.parse_args()
+    
+    models = args.models
+    languages = args.languages
     
     omg_eval(models, languages)

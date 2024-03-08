@@ -54,8 +54,8 @@ def Generate(prompts,model, params_dict, ppl_mode=False):
     
     if ppl_mode:   
         outputs = model.generate(
-            input_ids=inputs["input_ids"],attention_mask=inputs["attention_mask"], 
-            max_new_tokens=params_dict["max_tokens"],
+            input_ids=inputs["input_ids"],
+            attention_mask=inputs["attention_mask"], 
             output_scores=True,
             return_dict_in_generate=True,
         )

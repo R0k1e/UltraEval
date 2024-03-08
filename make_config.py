@@ -404,6 +404,20 @@ def make_marc_config():
             with open(output_path, 'w') as f:
                 json.dump(data, f)
     
+    for lang in lang_list:
+        for model in model_list:
+            output_path = os.path.join("./datasets/m-arc/config/", f"m-arc-{model}-{lang}-ppl.json")
+            data = copy.deepcopy(origin_data)
+            data['task_name'] = f'm-arc_{model}_{lang}'
+            data['path'] = f"datasets/m-arc/data/{lang}.jsonl"
+            data['transform'] = f"datasets/m-arc/transform_ppl_{model}_{lang}.py"
+            data['fewshot'] = 0
+            data['metric']['accuracy']['evaluation']['type']= 'log_prob'
+            data['generate']['method'] = 'loglikelihood'
+            data['postprocess'] = ''
+            with open(output_path, 'w') as f:
+                json.dump(data, f)
+    
     input_path = "/home/wanghaoyu/UltraEval/datasets/m-arc/"
     
     templates = {
@@ -413,11 +427,26 @@ def make_marc_config():
 
 
     instructions = {
-        "en": r'"Question:\n" + data["question"] + "\n" + "Requirement:\nChoose and respond with the letter of the correct answer.\n" + "Options:\n" + text + "Answer:\n"',
-        'zh': r'"问题：\n" + data["question"] + "\n" + "要求：\n选择并回答正确答案的字母。\n" + "选项：\n" + text + "答案：\n"',
-        'es': r'"Pregunta:\n" + data["question"] + "\n" + "Petición:\nElige y contesta la letra de la respuesta correcta.\n" + "Opción:\n" + text + "Contesta:\n"',
-        'fr': r'"Question:\n" + data["question"] + "\n" + "Exigence:\nChoisissez et répondez par la lettre de la bonne réponse.\n" + "Option:\n" + text + "Answer:\n"',
-        'ru': r'"Вопрос:\n" + data["question"] + "\n" + "Требование:\nВыберите и ответьте на правильный вариант.\n" + "Варианты:\n" + text + "Ответ:\n"'
+        "en": r'"Question:\n" + data["question"] + "\n" + "Requirement:\nChoose and answer the letter of the correct answer. You just need to give the option letters.\n" + "Options:\n" + text',
+        'zh': r'"问题：\n" + data["question"] + "\n" + "要求：\n选择并回答正确答案的字母。你只需要给出选项字母即可。\n" + "选项：\n" + text ',
+        'es': r'"Pregunta:\n" + data["question"] + "\n" + "Petición:\nElige y contesta la letra de la respuesta correcta. Sólo tienes que dar las letras de opción.\n" + "Opciones:\n" + text ',
+        'fr': r'"Question:\n" + data["question"] + "\n" + "Exigence:\nChoisissez et répondez à la lettre de la bonne réponse. Il suffit de donner les lettres d\'option.\n" + "Option:\n" + text ',
+        'ru': r'"Вопрос:\n" + data["question"] + "\n" + "Требование:\nВыберите и ответьте на букву правильного ответа. Вам просто нужно указать буквы опций.\n" + "Варианты:\n" + text '
+    }
+    
+    question_template = {
+        "en": r"Question:\n{data['question']}\n",
+        'zh': r"问题：\n{data['question']}\n",
+        'es': r"Pregunta:\n{data['question']}\n",
+        'fr': r"Question:\n{data['question']}\n",
+        'ru': r"Вопрос:\n{data['question']}\n"
+    }
+    lead_in = {
+        "en": r"Answer:\n",
+        'zh': r"答案：\n",
+        'es': r"Respuesta:\n",
+        'fr': r"Answer:\n",   
+        'ru': r"Ответ:\n"
     }
 
 
@@ -434,8 +463,8 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     text = ""
     for idx, option in enumerate(options):
         text += f"{{chr(65+idx)}}. {{option}}\\n"
-    text = {text}
-    text = f"""{template}"""
+    text = {instructions[lang]}
+    text = f"""{templates[model]}""" + "{lead_in[lang]}"
     index_of_correct_answer = list(data["target_scores"].values()).index(1)
     correct_answer = chr(65 + index_of_correct_answer)
     return {{"input": text, "output": correct_answer, "processed_output": correct_answer}}
@@ -444,6 +473,33 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
             with open(output_path, 'w') as f:
                 f.write(origin_code)
 
+    for lang in lang_list:
+        for model in model_list:
+            text = instructions[lang]
+            template = templates[model]
+            origin_code = f'''
+import random
+
+
+def transform(data, num_sample: int, r: random.Random, dataset_name: str):
+    text = f"{question_template[lang]}"
+    text = f"""{templates[model]}"""
+    answer_prompt = f"{lead_in[lang]}"
+    text = text + answer_prompt
+    processed_correct_answer = correct_answer = [
+        key for key, value in data["target_scores"].items() if value == 1
+    ][0].strip()
+    return {{
+        "input": text,
+        "output": correct_answer,
+        "processed_output": processed_correct_answer,
+    }}
+    '''
+            output_path = os.path.join(input_path, f"transform_ppl_{model}_{lang}.py")  
+            with open(output_path, 'w') as f:
+                f.write(origin_code)
+                
+                
 def make_mhellaswag_config():
     input_path = "datasets/hellaswag/config/hellaswag_ppl.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
@@ -463,7 +519,10 @@ def make_mhellaswag_config():
             data['fewshot'] = 0
             data['generate']['params'] = ""
             data['generate']['method'] = "loglikelihood"
-            data['postprocess'] = 'general_torch_ppl_norm'
+            if model != 'null':
+                data['postprocess'] = 'general_torch_ppl_norm'
+            else:
+                data['postprocess'] = 'transformer_ppl_norm'
             with open(output_path, 'w') as f:
                 json.dump(data, f)
                 
