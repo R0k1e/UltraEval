@@ -69,11 +69,11 @@ if __name__ == '__main__':
     languages = ['zh']
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('--models', nargs='+', default=models)
-    parser.add_argument('--languages', nargs='+', default=languages)
+    parser.add_argument('--models', type=str, default=models)
+    parser.add_argument('--languages', type=str, default=languages)
     args = parser.parse_args()
     
-    models = args.models
-    languages = args.languages
+    models = args.models.split(',')
+    languages = args.languages.split(',')
     
     omg_eval(models, languages)

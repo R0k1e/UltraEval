@@ -1,4 +1,5 @@
 import argparse
+import pdb
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_name", type=str, help="Model name on hugginface")
@@ -27,8 +28,8 @@ reference:https://github.com/vllm-project/vllm/blob/main/vllm/sampling_params.py
 """
 
 tokenizer = AutoTokenizer.from_pretrained(args.model_name)
-tokenizer.padding_side = 'left'
-tokenizer.pad_token = tokenizer.eos_token
+# tokenizer.padding_side = 'right'
+# tokenizer.pad_token = tokenizer.eos_token
 
 print("model load finished")
 
@@ -43,53 +44,66 @@ params_dict = {
 }
 
 def Generate(prompts,model, params_dict, ppl_mode=False):
-    # print("Generate function")
-    inputs = tokenizer(
-        prompts,
-        max_length=2048,
-        return_tensors="pt",
-        padding=True,
-    ).to(device)
-    
-    
-    if ppl_mode:   
-        outputs = model.generate(
-            input_ids=inputs["input_ids"],
-            attention_mask=inputs["attention_mask"], 
-            output_scores=True,
-            return_dict_in_generate=True,
-        )
-        all_logits = outputs.scores
-        for logits in all_logits:            
-            logits = torch.nn.functional.softmax(logits, dim=-1)
-            logits = torch.log(logits)
-        return all_logits
-        
-    else:
-        if params_dict['temperature'] != 0:
-            outputs = model.generate(
-                input_ids=inputs["input_ids"],attention_mask=inputs["attention_mask"], 
-                max_new_tokens=params_dict["max_tokens"],
-                do_sample=True,
-                temperature=params_dict["temperature"],
-                top_p=params_dict["top_p"],
+    outputs = []
+    for prompt in prompts:
+        # with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
+        #     f.write('prompt:'+ str(prompt) + '\n')
+        inputs = tokenizer(
+            prompt,
+            return_tensors="pt",
+        ).to(device)
+        # with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
+        #     f.write('inputs:'+ str(inputs) + '\n')
+
+
+        if ppl_mode:   
+            # output = model.generate(
+            #     input_ids=inputs["input_ids"],
+            #     attention_mask=inputs["attention_mask"], 
+            #     max_new_tokens=params_dict["max_tokens"],
+            #     output_scores=True,
+            #     return_dict_in_generate=True,
+            # )
+            output = model(
+                input_ids=inputs["input_ids"],
+                attention_mask=inputs["attention_mask"], 
+                labels=inputs["input_ids"]
             )
+            prompt_logprobs = []
+            for logits in output.logits:
+                logits = torch.nn.functional.softmax(logits, dim=-1)
+                logits = torch.log(logits)
+                prompt_logprobs.append(logits)
+            outputs.append(prompt_logprobs)
+
         else:
-            outputs = model.generate(
-                input_ids=inputs["input_ids"],attention_mask=inputs["attention_mask"], 
-                max_new_tokens=params_dict["max_tokens"],
-                do_sample=False,
-                top_p=params_dict["top_p"],
-            )
-        # print("finish generate")
-        outputs = tokenizer.batch_decode(
-            outputs.to("cpu"), skip_special_tokens=True
-        )
-        # print("decode finish")
-        for i in range(len(outputs)):
-            if outputs[i].startswith(prompts[i]):
-                outputs[i] = outputs[i][len(prompts[i]):]
-        return outputs
+            if params_dict['temperature'] != 0:
+                output = model.generate(
+                    input_ids=inputs["input_ids"],
+                    max_new_tokens=params_dict["max_tokens"],
+                    do_sample=True,
+                    temperature=params_dict["temperature"],
+                    top_p=params_dict["top_p"],
+                )
+            else:
+                output = model.generate(
+                    input_ids=inputs,
+                    max_new_tokens=params_dict["max_tokens"],
+                    do_sample=False,
+                    top_p=params_dict["top_p"],
+                )
+            # output = tokenizer.batch_decode(
+            #     output.to("cpu"), skip_special_tokens=True
+            # )
+            output = tokenizer.decode(output[0], skip_special_tokens=True)
+            # with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
+            #     f.write('output:'+ str(output) + '\n')
+            # if output[0].startswith(prompt):
+            #     output = output[len(prompt):]
+            outputs.append(output)
+    # with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
+    #     f.write(str(outputs))
+    return outputs
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -126,8 +140,7 @@ def main():
     if "prompt_logprobs" in params and params["prompt_logprobs"] is not None:
         for logits in outputs:
             prompt_logprobs = logits
-            logp_list = [d[0].item() for d in prompt_logprobs[1:]]
-            res.append(logp_list)
+            res =[d[0].tolist() for d in prompt_logprobs]
         return jsonify(res)
     else:
         for output in outputs:

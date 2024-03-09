@@ -403,7 +403,10 @@ def make_marc_config():
             data['postprocess'] = ''
             with open(output_path, 'w') as f:
                 json.dump(data, f)
-    
+                
+    input_path = "datasets/m-arc/config/m-arc_ppl.json"
+    with open(input_path, 'r') as f:
+        origin_data = json.load(f)
     for lang in lang_list:
         for model in model_list:
             output_path = os.path.join("./datasets/m-arc/config/", f"m-arc-{model}-{lang}-ppl.json")
@@ -425,13 +428,21 @@ def make_marc_config():
         'null': r"{text}"
     }
 
-
+    #有一句你只需要给出选项字母即可
+    # instructions = {
+    #     "en": r'"Question:\n" + data["question"] + "\n" + "Requirement:\nChoose and answer the letter of the correct answer. You just need to give the option letters.\n" + "Options:\n" + text',
+    #     'zh': r'"问题：\n" + data["question"] + "\n" + "要求：\n选择并回答正确答案的字母。你只需要给出选项字母即可。\n" + "选项：\n" + text ',
+    #     'es': r'"Pregunta:\n" + data["question"] + "\n" + "Petición:\nElige y contesta la letra de la respuesta correcta. Sólo tienes que dar las letras de opción.\n" + "Opciones:\n" + text ',
+    #     'fr': r'"Question:\n" + data["question"] + "\n" + "Exigence:\nChoisissez et répondez à la lettre de la bonne réponse. Il suffit de donner les lettres d\'option.\n" + "Option:\n" + text ',
+    #     'ru': r'"Вопрос:\n" + data["question"] + "\n" + "Требование:\nВыберите и ответьте на букву правильного ответа. Вам просто нужно указать буквы опций.\n" + "Варианты:\n" + text '
+    # }
+    
     instructions = {
-        "en": r'"Question:\n" + data["question"] + "\n" + "Requirement:\nChoose and answer the letter of the correct answer. You just need to give the option letters.\n" + "Options:\n" + text',
-        'zh': r'"问题：\n" + data["question"] + "\n" + "要求：\n选择并回答正确答案的字母。你只需要给出选项字母即可。\n" + "选项：\n" + text ',
-        'es': r'"Pregunta:\n" + data["question"] + "\n" + "Petición:\nElige y contesta la letra de la respuesta correcta. Sólo tienes que dar las letras de opción.\n" + "Opciones:\n" + text ',
-        'fr': r'"Question:\n" + data["question"] + "\n" + "Exigence:\nChoisissez et répondez à la lettre de la bonne réponse. Il suffit de donner les lettres d\'option.\n" + "Option:\n" + text ',
-        'ru': r'"Вопрос:\n" + data["question"] + "\n" + "Требование:\nВыберите и ответьте на букву правильного ответа. Вам просто нужно указать буквы опций.\n" + "Варианты:\n" + text '
+        "en": r'"Question:\n" + data["question"] + "\n" + "Requirement:\nChoose and answer the letter of the correct answer.\n" + "Options:\n" + text',
+        'zh': r'"问题：\n" + data["question"] + "\n" + "要求：\n选择并回答正确答案的字母。\n" + "选项：\n" + text ',
+        'es': r'"Pregunta:\n" + data["question"] + "\n" + "Petición:\nElige y contesta la letra de la respuesta correcta. Coloque la letra de su elección al principio de su respuesta.\n" + "Opciones:\n" + text ',
+        'fr': r'"Question:\n" + data["question"] + "\n" + "Exigence:\nChoisissez et répondez à la lettre de la bonne réponse.\n" + "Option:\n" + text ',
+        'ru': r'"Вопрос:\n" + data["question"] + "\n" + "Требование:\nВыберите и ответьте на букву правильного ответа.\n" + "Варианты:\n" + text '
     }
     
     question_template = {
@@ -452,8 +463,6 @@ def make_marc_config():
 
     for lang in lang_list:
         for model in model_list:
-            text = instructions[lang]
-            template = templates[model]
             origin_code = f'''
 import random
 
@@ -467,6 +476,15 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     text = f"""{templates[model]}""" + "{lead_in[lang]}"
     index_of_correct_answer = list(data["target_scores"].values()).index(1)
     correct_answer = chr(65 + index_of_correct_answer)
+    #一个俄语字母，一个英语字母
+    if correct_answer == "A":
+        correct_answer = ["A","А"]
+    elif correct_answer == "B":
+        correct_answer = ["B","Б"]
+    elif correct_answer == "C":
+        correct_answer = ["C","В","С"]
+    elif correct_answer == "D":
+        correct_answer = ["D","Д"]
     return {{"input": text, "output": correct_answer, "processed_output": correct_answer}}
     '''
             output_path = os.path.join(input_path, f"transform_gen_{model}_{lang}.py")  
@@ -475,8 +493,6 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
 
     for lang in lang_list:
         for model in model_list:
-            text = instructions[lang]
-            template = templates[model]
             origin_code = f'''
 import random
 
@@ -509,13 +525,18 @@ def make_mhellaswag_config():
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
 
+    templates = {
+        'okapi': r"[INST] {text} [/INST]",
+        'null': r"{text}"
+    }
+
     for lang in lang_list:
         for model in model_list:
             output_path = os.path.join("./datasets/m-hellaswag/config/", f"m-hellaswag-{model}-{lang}-ppl.json")
             data = copy.deepcopy(origin_data)
             data['task_name'] = f'm-hellaswag_{model}_{lang}'
             data['path'] = f"datasets/m-hellaswag/data/{lang}.jsonl"
-            data['transform'] = f"datasets/m-hellaswag/transform_ppl_v0.py"
+            data['transform'] = f"datasets/m-hellaswag/transform_ppl_{model}_{lang}.py"
             data['fewshot'] = 0
             data['generate']['params'] = ""
             data['generate']['method'] = "loglikelihood"
@@ -527,10 +548,6 @@ def make_mhellaswag_config():
                 json.dump(data, f)
                 
     input_path = "/home/wanghaoyu/UltraEval/datasets/m-hellaswag/"
-    templates = {
-        'okapi': r"[INST] {data['question']} [/INST]",
-        'null' : r"{data['question']}"
-    }
 
     for lang in lang_list:
         for model in model_list:
@@ -549,6 +566,92 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
         correct_answer = ""
 
     return {{"input": text, "output": correct_answer, "processed_output": correct_answer}}
+    '''
+            output_path = os.path.join(input_path, f"transform_ppl_{model}_{lang}.py")  
+            with open(output_path, 'w') as f:
+                f.write(origin_code)
+                
+    input_path = "datasets/hellaswag/config/hellaswag_gen.json"
+    os.makedirs(os.path.dirname(input_path), exist_ok=True)
+    lang_list = ['en', 'zh', 'fr', 'ru', "es"]
+    model_list = ["okapi", 'null']
+
+    with open(input_path, 'r') as f:
+        origin_data = json.load(f)
+
+    for lang in lang_list:
+        for model in model_list:
+            output_path = os.path.join("./datasets/m-hellaswag/config/", f"m-hellaswag-{model}-{lang}-gen.json")
+            data = copy.deepcopy(origin_data)
+            data['task_name'] = f'm-hellaswag_{model}_{lang}'
+            data['path'] = f"datasets/m-hellaswag/data/{lang}.jsonl"
+            data['transform'] = f"datasets/m-hellaswag/transform_gen_{model}_{lang}.py"
+            data['fewshot'] = 0
+            data['generate']['params'] = "models/model_params/vllm_sample.json"
+            data['metric']['accuracy']['evaluation']['type'] = 'qa_match'
+            data['generate']['method'] = "generate"
+            with open(output_path, 'w') as f:
+                json.dump(data, f)
+                
+    input_path = "/home/wanghaoyu/UltraEval/datasets/m-hellaswag/"
+    
+    templates = {
+        'okapi': r"[INST] {text} [/INST]",
+        'null': r"{text}"
+    }
+
+
+    instructions = {
+        "en": r'''"Context:\n {data['question']}\nQuestion:\nWhich ending makes the most sense?\nRequirement:\nChoose and respond with the letter of the correct answer, including the parentheses.\nOptions:\n"''',
+        'zh': r'''"背景：\n {data['question']}\n问题：\n哪个结尾最合理？\n要求：\n选择并回答正确答案的字母，包括括号。\n选项：\n"''',
+        'es': r'''"Contexto:\n {data['question']}\nPregunta:\n¿Qué final tiene más sentido?\nRequisito:\nElige y responde con la letra de la respuesta correcta, incluyendo el paréntesis.\nOpciones:\n"''',
+        'fr': r'''"Contexte:\n {data['question']}\nQuestion:\nQuelle est la fin la plus logique?\nExigence:\nChoisissez et répondez avec la lettre de la bonne réponse, y compris les parenthèses.\nOptions:\n"''',
+        'ru': r'''"Контекст:\n {data['question']}\nВопрос:\nКакая концовка имеет наибольший смысл?\nТребования:\nВыберите и укажите букву правильного ответа, включая скобки.\nОпции:\n"''',
+    }
+    
+    lead_in = {
+        "en": r"Answer:\n",
+        'zh': r"答案：\n",
+        'es': r"Respuesta:\n",
+        'fr': r"Answer:\n",   
+        'ru': r"Ответ:\n"
+    }
+
+    for lang in lang_list:
+        for model in model_list:
+            text = templates[model]
+            origin_code = f'''
+import random
+
+
+def transform(data, num_sample: int, r: random.Random, dataset_name: str):
+    options = ""
+    for idx, item in enumerate(data["target_scores"].keys()):
+        options += f"({{chr(65 + idx)}}) {{item}}\\n"
+    text = f{instructions[lang]} + options
+    text = f"""{templates[model]}""" + "{lead_in[lang]}"
+    index_of_correct_answer = list(data["target_scores"].values()).index(1)
+    correct_answer = chr(65 + index_of_correct_answer)
+    if correct_answer == "A":
+        correct_answer = ["A","А"]
+    elif correct_answer == "B":
+        correct_answer = ["B","Б"]
+    elif correct_answer == "C":
+        correct_answer = ["C","В","С"]
+    elif correct_answer == "D":
+        correct_answer = ["D","Д"]
+    new = []
+
+    for c in correct_answer:
+        new.append(f'({{c}})')
+    correct_answer = new
+    processed_correct_answer = correct_answer
+    return {{
+        "input": text,
+        "output": correct_answer,
+        "processed_output": processed_correct_answer,
+    }}
+
     '''
             output_path = os.path.join(input_path, f"transform_gen_{model}_{lang}.py")  
             with open(output_path, 'w') as f:
