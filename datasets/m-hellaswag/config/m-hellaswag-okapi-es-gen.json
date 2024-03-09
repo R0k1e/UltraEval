@@ -1,0 +1,1 @@
+{"task_name": "m-hellaswag_okapi_es", "path": "datasets/m-hellaswag/data/es.jsonl", "description": "", "transform": "datasets/m-hellaswag/transform_gen_okapi_es.py", "fewshot": 0, "generate": {"method": "generate", "params": "models/model_params/vllm_sample.json"}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "qa_match"}}}}

@@ -13,7 +13,7 @@ OUTPUT_BASE_PATH=result/${TASK_NAME}/${MODEL_NAME}   # 结果保存路径，与H
 
 # 步骤1
 # 选择评测的任务，生成评测 config文件。其中method=ppl，表示PPL式
-python configs/make_config.py --datasets $TASK_NAME --method ppl --tasks $TASK
+python configs/make_config.py --datasets $TASK_NAME --method gen --tasks $TASK
 
 
 # # 步骤2
@@ -50,8 +50,8 @@ python main.py \
     --config_path $CONFIG_PATH \
     --output_base_path $OUTPUT_BASE_PATH \
     --batch_size $BATCH_SIZE \
-    --postprocess general_torch_ppl \
-    --params models/model_params/vllm_logprobs.json \
+    --postprocess general_torch \
+    --params models/model_params/vllm_sample_v1.json \
     --write_out \
     # --limit 2
 

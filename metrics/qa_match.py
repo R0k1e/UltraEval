@@ -26,8 +26,13 @@ class QaMatch:
         # print(letters)
 
         # print(find_first_letter(input_string, n))
-        if ground_truth == self.find_first_letter(input_string, n):
-            return 1.0
+        first_letter = self.find_first_letter(input_string, n)
+        if isinstance(ground_truth, str):
+            if ground_truth == first_letter:
+                return 1.0
+        else:
+            if first_letter in ground_truth:
+                return 1.0
 
         if input_string.startswith(question.strip()):
             input_string = input_string[len(question.strip()):].strip()

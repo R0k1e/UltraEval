@@ -67,7 +67,7 @@ def auto_test(model):
     if model == 'aya-101':
         batch_size = 8
     else:
-        batch_size = 256    
+        batch_size = 128   
     print(f"batch_size: {batch_size}")
     template_type = template_dict[model]
     for test_set in test_list:
@@ -83,7 +83,7 @@ def auto_test(model):
             --gpuid  {gpu_id}\
             --port {port}""", 
             shell=True)
-        time.sleep(90)
+        time.sleep(120)
         if test_set in all_test_list:
             template_type = "all"
         for lang in languages:
