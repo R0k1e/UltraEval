@@ -98,7 +98,7 @@ if __name__ == '__main__':
         auto_test(model)
         
     if 'humaneval' in test_list:
-        input_dir = "。/result/humaneval"
+        input_dir = "./result/humaneval"
         result = transform_humaneval(input_dir)
         for item in result:
             print(result[item])

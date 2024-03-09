@@ -3,7 +3,7 @@ import os
 import copy
 
 def make_mgsm_config():
-    input_path = "/home/wanghaoyu/UltraEval/datasets/mgsm/config/mgsm_gen.json"
+    input_path = "./datasets/mgsm/config/mgsm_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'es', 'fr', 'ru']
     model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null"]
@@ -13,7 +13,7 @@ def make_mgsm_config():
 
     for lang in lang_list:
         for model in model_list:
-            output_path = os.path.join("/home/wanghaoyu/UltraEval/datasets/mgsm/config/", f"mgsm_{model}_{lang}_gen.json")
+            output_path = os.path.join("./datasets/mgsm/config/", f"mgsm_{model}_{lang}_gen.json")
             data = copy.deepcopy(origin_data)
             data['task_name'] = f'mgsm_{model}_{lang}'
             data['path'] = f"datasets/mgsm/data/mgsm_{lang}.jsonl"
@@ -24,7 +24,7 @@ def make_mgsm_config():
             with open(output_path, 'w') as f:
                 json.dump(data, f)
     
-    input_path = "/home/wanghaoyu/UltraEval/datasets/mgsm/"
+    input_path = "./datasets/mgsm/"
 
     instructions = {
         "en": "Please answer the following question:",
@@ -71,7 +71,7 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
                 f.write(origin_code)
                 
 def make_humaneval_config():
-    input_path = "/home/wanghaoyu/UltraEval/datasets/humaneval/config/humaneval_gen.json"
+    input_path = "./datasets/humaneval/config/humaneval_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'es', 'fr', 'ru']
     model_list = ['okapi', 'guanaco', 'phoenix', "guanaco-13b", 'null']
@@ -81,7 +81,7 @@ def make_humaneval_config():
 
     for lang in lang_list:
         for model in model_list:
-            output_path = os.path.join("/home/wanghaoyu/UltraEval/datasets/humaneval/config/", f"humaneval_{model}_{lang}_gen.json")
+            output_path = os.path.join("./datasets/humaneval/config/", f"humaneval_{model}_{lang}_gen.json")
             data = copy.deepcopy(origin_data)
             data['task_name'] = f'humaneval_{model}_{lang}'
             if lang == 'en':
@@ -95,7 +95,7 @@ def make_humaneval_config():
             with open(output_path, 'w') as f:
                 json.dump(data, f)
     
-    input_path = "/home/wanghaoyu/UltraEval/datasets/humaneval/"
+    input_path = "./datasets/humaneval/"
 
     instructions = {
         "en": "Create a Python script for this problem. The Python script should be enclosed by ```python``` tags. ",
@@ -133,7 +133,7 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
                 f.write(origin_code)
                 
 def make_omgeval_config():
-    input_path = "/home/wanghaoyu/UltraEval/datasets/omgeval/config/omgeval-en_gen.json"
+    input_path = "./datasets/omgeval/config/omgeval-en_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'es', 'fr', 'ru', 'ar']
     model_list = ['okapi', 'guanaco', 'phoenix', 'llama', 'guanaco-13b', 'null']
@@ -143,7 +143,7 @@ def make_omgeval_config():
 
     for lang in lang_list:
         for model in model_list:
-            output_path = os.path.join("/home/wanghaoyu/UltraEval/datasets/omgeval/config/", f"omgeval_{model}_{lang}_gen.json")
+            output_path = os.path.join("./datasets/omgeval/config/", f"omgeval_{model}_{lang}_gen.json")
             data = copy.deepcopy(origin_data)
             data['task_name'] = f'omgeval_{model}_{lang}'
             data['path'] = f"datasets/omgeval/data/{lang}.jsonl"
@@ -154,7 +154,7 @@ def make_omgeval_config():
             with open(output_path, 'w') as f:
                 json.dump(data, f)
     
-    input_path = "/home/wanghaoyu/UltraEval/datasets/omgeval/"
+    input_path = "./datasets/omgeval/"
     templates = {
         'okapi': "[INST] {data['question']} [/INST]",
         'guanaco': r"### Input:\nUser: {data['question']}\n### Response:\n",
@@ -219,7 +219,7 @@ def make_mmlu_config():
             with open(output_path, 'w') as f:
                 json.dump(data, f)
     
-    input_path = "/home/wanghaoyu/UltraEval/datasets/m-mmlu/"
+    input_path = "./datasets/m-mmlu/"
     
     templates = {
         'okapi': r"[INST] {prompt} [/INST]",
@@ -348,7 +348,7 @@ def make_xwinograd_config():
             with open(output_path, 'w') as f:
                 json.dump(data, f)
     
-    input_path = "/home/wanghaoyu/UltraEval/datasets/xwinograd/"
+    input_path = "./datasets/xwinograd/"
     
 
     instructions = {
@@ -421,7 +421,7 @@ def make_marc_config():
             with open(output_path, 'w') as f:
                 json.dump(data, f)
     
-    input_path = "/home/wanghaoyu/UltraEval/datasets/m-arc/"
+    input_path = "./datasets/m-arc/"
     
     templates = {
         'okapi': r"[INST] {text} [/INST]",
@@ -547,7 +547,7 @@ def make_mhellaswag_config():
             with open(output_path, 'w') as f:
                 json.dump(data, f)
                 
-    input_path = "/home/wanghaoyu/UltraEval/datasets/m-hellaswag/"
+    input_path = "./datasets/m-hellaswag/"
 
     for lang in lang_list:
         for model in model_list:
@@ -593,7 +593,7 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
             with open(output_path, 'w') as f:
                 json.dump(data, f)
                 
-    input_path = "/home/wanghaoyu/UltraEval/datasets/m-hellaswag/"
+    input_path = "./datasets/m-hellaswag/"
     
     templates = {
         'okapi': r"[INST] {text} [/INST]",
