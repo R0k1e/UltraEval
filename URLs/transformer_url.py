@@ -39,7 +39,7 @@ app = Flask(__name__)
 params_dict = {
     "temperature": 1.0,
     "top_p": 1.0,
-    "max_tokens": 16,
+    "max_tokens": 100,
     "prompt_logprobs": None,
 }
 
@@ -48,26 +48,21 @@ def Generate(prompts,model, params_dict, ppl_mode=False):
     for prompt in prompts:
         # with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
         #     f.write('prompt:'+ str(prompt) + '\n')
-        inputs = tokenizer(
+        inputs = tokenizer.encode(
             prompt,
             return_tensors="pt",
-        ).to(device)
+        )
         # with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
         #     f.write('inputs:'+ str(inputs) + '\n')
 
 
         if ppl_mode:   
-            # output = model.generate(
-            #     input_ids=inputs["input_ids"],
-            #     attention_mask=inputs["attention_mask"], 
-            #     max_new_tokens=params_dict["max_tokens"],
-            #     output_scores=True,
-            #     return_dict_in_generate=True,
-            # )
+            # 不能正常工作
+            raise NotImplementedError
             output = model(
-                input_ids=inputs["input_ids"],
+                input_ids=inputs,
                 attention_mask=inputs["attention_mask"], 
-                labels=inputs["input_ids"]
+                labels=inputs
             )
             prompt_logprobs = []
             for logits in output.logits:
@@ -77,9 +72,12 @@ def Generate(prompts,model, params_dict, ppl_mode=False):
             outputs.append(prompt_logprobs)
 
         else:
+            with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
+                f.write('params_dict:'+ str(params_dict) + '\n')
+                f.write('inputs:'+ str(inputs) + '\n')
             if params_dict['temperature'] != 0:
                 output = model.generate(
-                    input_ids=inputs["input_ids"],
+                    input_ids=inputs,
                     max_new_tokens=params_dict["max_tokens"],
                     do_sample=True,
                     temperature=params_dict["temperature"],
@@ -111,7 +109,6 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 def load_model():
     pretrained_model = AutoModelForSeq2SeqLM.from_pretrained(
     args.model_name,
-    device_map="auto",
         )
     return pretrained_model
 
