@@ -66,8 +66,6 @@ def main():
             prompt_logprobs = output.prompt_logprobs
             logp_list = [list(d.values())[0] for d in prompt_logprobs[1:]]
             res.append(logp_list)
-        with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
-            f.write(f'res: {res}\n')
         return jsonify(res)
     else:
         for output in outputs:

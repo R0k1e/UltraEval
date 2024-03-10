@@ -19,6 +19,7 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     elif correct_answer == "D":
         correct_answer = ["D","Д"]
     new = []
+
     for c in correct_answer:
         new.append(f'({c})')
     correct_answer = new

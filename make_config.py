@@ -526,8 +526,8 @@ def make_mhellaswag_config():
         origin_data = json.load(f)
 
     templates = {
-        'okapi': r"[INST] {text} [/INST]",
-        'null': r"{text}"
+        'okapi': r"[INST] {data['question']} [/INST]",
+        'null': r"{data['question']}  + '[SPLIT]'"
     }
 
     for lang in lang_list:
@@ -540,10 +540,11 @@ def make_mhellaswag_config():
             data['fewshot'] = 0
             data['generate']['params'] = ""
             data['generate']['method'] = "loglikelihood"
-            if model != 'null':
-                data['postprocess'] = 'general_torch_ppl_norm'
-            else:
-                data['postprocess'] = 'transformer_ppl_norm'
+            data['postprocess'] = 'general_torch_ppl_norm'
+            # if model != 'null':
+            #     data['postprocess'] = 'general_torch_ppl_norm'
+            # else:
+            #     data['postprocess'] = 'transformer_ppl_norm'
             with open(output_path, 'w') as f:
                 json.dump(data, f)
                 
@@ -556,7 +557,7 @@ def make_mhellaswag_config():
 import random    
         
 def transform(data, num_sample: int, r: random.Random, dataset_name: str):
-    text = f"{text}"
+    text = f"{text} " 
     correct_answer = [
         key for key, value in data["target_scores"].items() if value == 1
     ]

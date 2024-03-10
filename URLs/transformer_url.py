@@ -1,18 +1,10 @@
 import argparse
-import pdb
+import pandas as pd
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_name", type=str, help="Model name on hugginface")
 parser.add_argument("--gpuid", type=str, default="0", help="GPUid to be deployed")
 parser.add_argument("--port", type=int, default=5002, help="the port")
-parser.add_argument("--weight", type=float, default=0, help="linear")
-parser.add_argument("--use_peft", default=None,action="store_true",help="linear")
-parser.add_argument("--use_vllm", default=None,action="store_true",help="linear")
-parser.add_argument("--use_gate", default=None,action="store_true",help="linear")
-parser.add_argument("--gate_path", type=str,help="linear")
-parser.add_argument("--temperature", type=float, default=1.0, help="linear")
-parser.add_argument("--language_model", type=str, default="", help="linear")
-parser.add_argument("--task_model", type=str, default="", help="linear")
 args = parser.parse_args()
 
 import re
@@ -28,8 +20,6 @@ reference:https://github.com/vllm-project/vllm/blob/main/vllm/sampling_params.py
 """
 
 tokenizer = AutoTokenizer.from_pretrained(args.model_name)
-# tokenizer.padding_side = 'right'
-# tokenizer.pad_token = tokenizer.eos_token
 
 print("model load finished")
 
@@ -40,67 +30,74 @@ params_dict = {
     "temperature": 1.0,
     "top_p": 1.0,
     "max_tokens": 100,
+    "top_k": 0,
     "prompt_logprobs": None,
 }
 
 def Generate(prompts,model, params_dict, ppl_mode=False):
     outputs = []
     for prompt in prompts:
-        # with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
-        #     f.write('prompt:'+ str(prompt) + '\n')
-        inputs = tokenizer.encode(
-            prompt,
-            return_tensors="pt",
-        )
-        # with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
-        #     f.write('inputs:'+ str(inputs) + '\n')
 
 
         if ppl_mode:   
-            # 不能正常工作
-            raise NotImplementedError
+            question_text, answer_text = prompt.split('[SPLIT]')
+            question_text = question_text.strip()
+            answer_text = answer_text.strip()
+        
+            q_input = tokenizer.batch_encode_plus([question_text], return_tensors='pt').to(device)
+            a_input = tokenizer.batch_encode_plus([answer_text], return_tensors='pt').to(device)
+            y = a_input['input_ids'].to(device)
+            y_ids = y[:, :-1].contiguous().to(device)
+            lm_labels = y[:, 1:].clone().detach().to(device)
+            
             output = model(
-                input_ids=inputs,
-                attention_mask=inputs["attention_mask"], 
-                labels=inputs
+                input_ids=q_input['input_ids'].to(device),
+                attention_mask=q_input['attention_mask'].to(device),
+                decoder_input_ids=y_ids.to(device),
+                labels=lm_labels.to(device),
             )
-            prompt_logprobs = []
-            for logits in output.logits:
-                logits = torch.nn.functional.softmax(logits, dim=-1)
-                logits = torch.log(logits)
-                prompt_logprobs.append(logits)
-            outputs.append(prompt_logprobs)
+            
+            logits = output.logits
+            logits = torch.nn.functional.softmax(logits, dim=-1)
+            logits = torch.log(logits)
+            
+            
+            
+            #取出input_ids对应的logits
+            input_logits = []
+            for i in range(len(logits)):
+                a_ids = a_input['input_ids'][i][1:].tolist()
+                for seq_len in range(len(logits[i])):
+                    cur_token_id = a_ids[seq_len]
+                    input_logits.append(logits[i][seq_len][cur_token_id].item())
+            
+            outputs.append(input_logits)
 
         else:
-            with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
-                f.write('params_dict:'+ str(params_dict) + '\n')
-                f.write('inputs:'+ str(inputs) + '\n')
+            q_input = tokenizer.batch_encode_plus([prompt.strip()], return_tensors='pt').to(device)
             if params_dict['temperature'] != 0:
                 output = model.generate(
-                    input_ids=inputs,
+                    input_ids=q_input['input_ids'].to(device),
+                    attention_mask=q_input['attention_mask'].to(device),
                     max_new_tokens=params_dict["max_tokens"],
                     do_sample=True,
                     temperature=params_dict["temperature"],
                     top_p=params_dict["top_p"],
+                    top_k=params_dict["top_k"],
                 )
             else:
                 output = model.generate(
-                    input_ids=inputs,
+                    input_ids=q_input['input_ids'].to(device),
+                    attention_mask=q_input['attention_mask'].to(device),
                     max_new_tokens=params_dict["max_tokens"],
                     do_sample=False,
                     top_p=params_dict["top_p"],
+                    top_k=params_dict["top_k"],
                 )
-            # output = tokenizer.batch_decode(
-            #     output.to("cpu"), skip_special_tokens=True
-            # )
             output = tokenizer.decode(output[0], skip_special_tokens=True)
-            # with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
-            #     f.write('output:'+ str(output) + '\n')
-            # if output[0].startswith(prompt):
-            #     output = output[len(prompt):]
+            if output.startswith(prompt):
+                output = output[len(prompt):]
             outputs.append(output)
-    # with open('/home/wanghaoyu/UltraEval/test.txt', '+a') as f:
-    #     f.write(str(outputs))
     return outputs
 
 
@@ -110,7 +107,7 @@ def load_model():
     pretrained_model = AutoModelForSeq2SeqLM.from_pretrained(
     args.model_name,
         )
-    return pretrained_model
+    return pretrained_model.to(device)
 
 
 model = load_model()
@@ -135,17 +132,11 @@ def main():
         
     res = []
     if "prompt_logprobs" in params and params["prompt_logprobs"] is not None:
-        for logits in outputs:
-            prompt_logprobs = logits
-            res =[d[0].tolist() for d in prompt_logprobs]
+        res = outputs
         return jsonify(res)
     else:
         for output in outputs:
-                    
-            if args.use_vllm:
-                generated_text = output.outputs[0].text
-            else:
-                generated_text = output
+            generated_text = output
             res.append(generated_text)
         return jsonify(res)
 
