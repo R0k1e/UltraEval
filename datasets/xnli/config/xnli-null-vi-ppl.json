@@ -1,0 +1,1 @@
+{"task_name": "xnli_null_vi", "path": "datasets/xnli/data/vi.jsonl", "description": "", "transform": "datasets/xnli/transform_ppl_null_vi.py", "fewshot": 0, "generate": {"method": "loglikelihood", "params": ""}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "log_prob"}}}}

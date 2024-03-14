@@ -1,0 +1,1 @@
+{"task_name": "xnli_null_en", "path": "datasets/xnli/data/en.jsonl", "description": "", "transform": "datasets/xnli/transform_ppl_null_en.py", "fewshot": 0, "generate": {"method": "loglikelihood", "params": ""}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "log_prob"}}}}

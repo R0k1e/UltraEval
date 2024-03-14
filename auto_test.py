@@ -1,6 +1,6 @@
 import os
 import subprocess
-from transform_humaneval import transform_humaneval
+# from transform_humaneval import transform_humaneval
 from omgeval import omg_eval
 import time
 import signal
@@ -44,13 +44,15 @@ template_dict = {
     'aya': 'okapi',
     'aya-new': 'okapi',
     'aya-101': 'null',
+    'aya-hf': 'okapi',
 }
 
 model_path = {
-    'UltraLink': "/data/public/wangshuo/exp/ft-5lang-omg-13b/ckpts/checkpoints/epoch_2_hf",
+    'UltraLink': "/data/public/wangshuo/UltraLink/models/UltraLink",
     'aya': "/home/wanghaoyu/mAlign-shuo-dev/aya-5lang-lr2e-5/checkpoints/step_23400/_hf",
     'aya-new': "/home/wanghaoyu/mAlign-shuo-dev/aya-5lang-paperset/checkpoints/step_11700_hf",
     'aya-101': "/home/wanghaoyu/aya/aya-101",
+    'aya-hf': "/data/public/wangshuo/UltraLink/models/aya_hf",
     'bloom': "/data/public/wangshuo/bloomz-7b1-mt",
     'okapi': "/data/public/wangshuo/PolyLM-multialpaca-13b",
     'polychat': "/data/public/wangshuo/polylm-chat-13b",
@@ -97,10 +99,10 @@ if __name__ == '__main__':
     for model in model_list:
         auto_test(model)
         
-    if 'humaneval' in test_list:
-        input_dir = "./result/humaneval"
-        result = transform_humaneval(input_dir)
-        for item in result:
-            print(result[item])
+    # if 'humaneval' in test_list:
+    #     input_dir = "./result/humaneval"
+    #     result = transform_humaneval(input_dir)
+    #     for item in result:
+    #         print(result[item])
     # if 'omgeval' in test_list:
     #     omg_eval(model_list, languages)

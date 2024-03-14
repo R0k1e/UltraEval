@@ -1,0 +1,1 @@
+{"task_name": "xnli_okapi_ru", "path": "datasets/xnli/data/ru.jsonl", "description": "", "transform": "datasets/xnli/transform_ppl_okapi_ru.py", "fewshot": 0, "generate": {"method": "loglikelihood", "params": ""}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "log_prob"}}}}

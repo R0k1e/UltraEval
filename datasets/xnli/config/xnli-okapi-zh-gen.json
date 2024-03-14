@@ -1,0 +1,1 @@
+{"task_name": "xnli_okapi_zh", "path": "datasets/xnli/data/zh.jsonl", "description": "", "transform": "datasets/xnli/transform_gen_okapi_zh.py", "fewshot": 0, "generate": {"method": "generate", "params": "models/model_params/vllm_sample.json"}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "prefix_match"}}}}

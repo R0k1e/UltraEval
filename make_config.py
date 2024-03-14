@@ -657,13 +657,121 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
             output_path = os.path.join(input_path, f"transform_gen_{model}_{lang}.py")  
             with open(output_path, 'w') as f:
                 f.write(origin_code)
+
+
+
+def make_xnli_config():
+    input_path = "datasets/xnli/config/xnli_gen.json"
+    os.makedirs(os.path.dirname(input_path), exist_ok=True)
+    lang_list = ['ar', 'bg', 'de', 'el', 'en', 'es', 'fr', 'hi', 'ru', 'sw', 'th', 'tr', 'ur', 'vi', 'zh']
+    model_list = ["okapi", 'null']
+
+    with open(input_path, 'r') as f:
+        origin_data = json.load(f)
+
+    for lang in lang_list:
+        for model in model_list:
+            output_path = os.path.join("./datasets/xnli/config/", f"xnli-{model}-{lang}-gen.json")
+            data = copy.deepcopy(origin_data)
+            data['task_name'] = f'xnli_{model}_{lang}'
+            data['path'] = f"datasets/xnli/data/{lang}.jsonl"
+            data['transform'] = f"datasets/xnli/transform_gen_{model}_{lang}.py"
+            data['fewshot'] = 0
+            data['generate']['params'] = "models/model_params/vllm_sample.json"
+            data['postprocess'] = ''
+            with open(output_path, 'w') as f:
+                json.dump(data, f)
+                
+    input_path = "datasets/xnli/config/xnli_ppl.json"
+    with open(input_path, 'r') as f:
+        origin_data = json.load(f)
+    for lang in lang_list:
+        for model in model_list:
+            output_path = os.path.join("./datasets/xnli/config/", f"xnli-{model}-{lang}-ppl.json")
+            data = copy.deepcopy(origin_data)
+            data['task_name'] = f'xnli_{model}_{lang}'
+            data['path'] = f"datasets/xnli/data/{lang}.jsonl"
+            data['transform'] = f"datasets/xnli/transform_ppl_{model}_{lang}.py"
+            data['fewshot'] = 0
+            data['metric']['accuracy']['evaluation']['type']= 'log_prob'
+            data['generate']['method'] = 'loglikelihood'
+            data['postprocess'] = ''
+            with open(output_path, 'w') as f:
+                json.dump(data, f)
+    
+    input_path = "./datasets/xnli/"
+    
+    templates = {
+        'okapi': r"[INST] {text} [/INST]",
+        'null': r"{text}"
+    }
+
+    for lang in lang_list:
+        vocab = get_vocab(lang)
+        for model in model_list:
+            origin_code = f'''
+import random
+
+
+def transform(data, num_sample: int, r: random.Random, dataset_name: str):
+    text = f"{vocab["question"]}"
+    index_of_correct_answer = list(data["target_scores"].values()).index(1)
+    answers = ["A", "B", "C"]
+    correct_answer = answers[index_of_correct_answer]
+
+    return {{"input": text, "output": correct_answer, "processed_output": correct_answer}}
+
+    '''
+            output_path = os.path.join(input_path, f"transform_gen_{model}_{lang}.py")  
+            with open(output_path, 'w') as f:
+                f.write(origin_code)
+
+    for lang in lang_list:
+        vocab = get_vocab(lang)
+        for model in model_list:
+            origin_code = f'''
+import random
+
+
+def transform(data, num_sample: int, r: random.Random, dataset_name: str):
+    text = f"{vocab["question"]}"
+    index_of_correct_answer = list(data["target_scores"].values()).index(1)
+    answers = ["A", "B", "C"]
+    correct_answer = answers[index_of_correct_answer]
+
+    return {{"input": text, "output": correct_answer, "processed_output": correct_answer}}
+
+    '''
+            output_path = os.path.join(input_path, f"transform_ppl_{model}_{lang}.py")  
+            with open(output_path, 'w') as f:
+                f.write(origin_code)
+                
+
+
+def get_vocab(lang):
+    script_dir = "./datasets/xnli/"
+    with open(os.path.join(script_dir, "vocab.jsonl"), "r", encoding="utf-8") as vocab_file:
+        for line in vocab_file:
+            line = line.replace("\\", "\\\\\\")
+            line = line.replace(r"\\\n",r"\\n")
+            data_entry = json.loads(line.strip())
+            if data_entry["lang"] == lang:
+                return {
+                    "question": data_entry["question"],
+                    "contradiction": data_entry["contradiction"],
+                    "neutral": data_entry["neutral"],
+                    "entailment": data_entry["entailment"]
+                }
+    return None
+
                 
 if __name__ == '__main__':
     # make_belebele_config()
     # make_xwinograd_config()
-    make_mgsm_config()
-    make_omgeval_config()
-    make_humaneval_config()
-    make_marc_config()
-    make_mhellaswag_config()
-    make_mmlu_config()
+    # make_mgsm_config()
+    # make_omgeval_config()
+    # make_humaneval_config()
+    # make_marc_config()
+    # make_mhellaswag_config()
+    # make_mmlu_config()
+    make_xnli_config()

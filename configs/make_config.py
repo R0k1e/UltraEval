@@ -52,11 +52,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     config_dict_path = get_task_path("datasets")
+    #print(f"Config datasets: {config_dict_path}")
     print(f"The num of datasets is: {len(config_dict_path)}")
 
+    # "datasets" is test set
     datasets = [
         item.strip() for item in args.datasets.lower().split(",") if item.strip()
     ]
+    # "tasks" is {test_set}-{template_type}-{lang}
     tasks = [item.strip() for item in args.tasks.lower().split(",") if item.strip()]
     method = args.method.lower()
 

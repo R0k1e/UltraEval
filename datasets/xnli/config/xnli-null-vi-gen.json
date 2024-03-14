@@ -1,0 +1,1 @@
+{"task_name": "xnli_null_vi", "path": "datasets/xnli/data/vi.jsonl", "description": "", "transform": "datasets/xnli/transform_gen_null_vi.py", "fewshot": 0, "generate": {"method": "generate", "params": "models/model_params/vllm_sample.json"}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "prefix_match"}}}}

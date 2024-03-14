@@ -1,0 +1,1 @@
+{"task_name": "xnli_null_de", "path": "datasets/xnli/data/de.jsonl", "description": "", "transform": "datasets/xnli/transform_gen_null_de.py", "fewshot": 0, "generate": {"method": "generate", "params": "models/model_params/vllm_sample.json"}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "prefix_match"}}}}
