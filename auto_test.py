@@ -72,7 +72,7 @@ model_path = {
 
 def auto_test(model):
     if model == 'aya-101':
-        batch_size = 8
+        batch_size = 1
     else:
         batch_size = 128   
     print(f"batch_size: {batch_size}")
@@ -90,7 +90,7 @@ def auto_test(model):
             --gpuid  {gpu_id}\
             --port {port}""", 
             shell=True)
-        time.sleep(120)
+        time.sleep(300)
         if test_set in all_test_list:
             template_type = "all"
         for lang in languages:

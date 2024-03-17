@@ -11,4 +11,4 @@ RawData.zip
 result/
 logs*/
 .vscode/
-
+merged_results.jsonl

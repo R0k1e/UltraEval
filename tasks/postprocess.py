@@ -1,4 +1,5 @@
 import re
+import pdb
 
 class GeneralTorch:
     def __init__(self):
@@ -24,6 +25,7 @@ class GeneralTorchPPL:
 
     def __call__(self, result, request):
         # result是三层的list
+        # pdb.set_trace()
         process_outputs = [[-sum(inner) for inner in outer] for outer in result]
         return result, process_outputs
 
@@ -33,6 +35,7 @@ class GeneralTorchPPLNorm:
         pass
 
     def __call__(self, result, request):
+        # pdb.set_trace()
         process_outputs = [self.process_inner_lists(sublist) for sublist in result]
         return result, process_outputs
 
@@ -43,7 +46,7 @@ class GeneralTorchPPLNorm:
             if all(item == items[0] for item in items):
                 prefix.append(items[0])
             else:
-                break          
+                break
         processed_lists = [
             -(sum(lst[len(prefix):]) / len(lst[len(prefix):])) for lst in inner_lists
         ]

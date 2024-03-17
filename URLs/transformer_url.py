@@ -1,6 +1,6 @@
 import argparse
 import pandas as pd
-
+import pdb
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_name", type=str, help="Model name on hugginface")
 parser.add_argument("--gpuid", type=str, default="0", help="GPUid to be deployed")
@@ -36,68 +36,72 @@ params_dict = {
 
 def Generate(prompts,model, params_dict, ppl_mode=False):
     outputs = []
-    for prompt in prompts:
-
-
-        if ppl_mode:   
+    if ppl_mode:   
+        for prompt in prompts:
+            question_list = []
+            answer_list = []
             question_text, answer_text = prompt.split('[SPLIT]')
             question_text = question_text.strip()
             answer_text = answer_text.strip()
-        
-            q_input = tokenizer.batch_encode_plus([question_text], return_tensors='pt').to(device)
-            a_input = tokenizer.batch_encode_plus([answer_text], return_tensors='pt').to(device)
+            question_list.append(question_text)
+            answer_list.append(answer_text)
+
+            # pdb.set_trace()
+            q_input = tokenizer.batch_encode_plus(question_list, return_tensors='pt', padding=True).to(device)
+            a_input = tokenizer.batch_encode_plus(answer_list, return_tensors='pt', padding=True).to(device)
+
+
+            # pdb.set_trace()
             y = a_input['input_ids'].to(device)
             y_ids = y[:, :-1].contiguous().to(device)
             lm_labels = y[:, 1:].clone().detach().to(device)
-            
+            lm_labels[y[:, 1:] == tokenizer.pad_token_id] = -100
+            # pdb.set_trace()
+
             output = model(
                 input_ids=q_input['input_ids'].to(device),
                 attention_mask=q_input['attention_mask'].to(device),
                 decoder_input_ids=y_ids.to(device),
                 labels=lm_labels.to(device),
             )
+            # pdb.set_trace()
             
-            logits = output.logits
-            logits = torch.nn.functional.softmax(logits, dim=-1)
-            logits = torch.log(logits)
-            
-            
-            
-            #取出input_ids对应的logits
-            input_logits = []
-            for i in range(len(logits)):
-                a_ids = a_input['input_ids'][i][1:].tolist()
-                for seq_len in range(len(logits[i])):
-                    cur_token_id = a_ids[seq_len]
-                    input_logits.append(logits[i][seq_len][cur_token_id].item())
-            
-            outputs.append(input_logits)
+            # 计算交叉熵损失
+            loss = output.loss
+            outputs.append(loss.item())
+        
+        
+        # # pdb.set_trace()
+        # a_input_ids = a_input['input_ids'][:, :-1].to(device)
+        # logits = output.logits
+        # prompt_logits = logits.gather(-1, a_input_ids.unsqueeze(-1)).squeeze(-1)
 
+        # # pdb.set_trace()
+        # # 计算logprobs
+        # outputs = torch.log_softmax(prompt_logits, dim=-1).tolist()
+        
+    else:
+        q_input = tokenizer.batch_encode_plus(prompts, return_tensors='pt', padding=True, max_length=params_dict['max_tokens']).to(device)
+        if params_dict['temperature'] != 0:
+            output = model.generate(
+                input_ids=q_input['input_ids'].to(device),
+                attention_mask=q_input['attention_mask'].to(device),
+                max_new_tokens=params_dict["max_tokens"],
+                do_sample=True,
+                temperature=params_dict["temperature"],
+                top_p=params_dict["top_p"],
+                top_k=params_dict["top_k"],
+            )
         else:
-            q_input = tokenizer.batch_encode_plus([prompt.strip()], return_tensors='pt').to(device)
-            if params_dict['temperature'] != 0:
-                output = model.generate(
-                    input_ids=q_input['input_ids'].to(device),
-                    attention_mask=q_input['attention_mask'].to(device),
-                    max_new_tokens=params_dict["max_tokens"],
-                    do_sample=True,
-                    temperature=params_dict["temperature"],
-                    top_p=params_dict["top_p"],
-                    top_k=params_dict["top_k"],
-                )
-            else:
-                output = model.generate(
-                    input_ids=q_input['input_ids'].to(device),
-                    attention_mask=q_input['attention_mask'].to(device),
-                    max_new_tokens=params_dict["max_tokens"],
-                    do_sample=False,
-                    top_p=params_dict["top_p"],
-                    top_k=params_dict["top_k"],
-                )
-            output = tokenizer.decode(output[0], skip_special_tokens=True)
-            if output.startswith(prompt):
-                output = output[len(prompt):]
-            outputs.append(output)
+            output = model.generate(
+                input_ids=q_input['input_ids'].to(device),
+                attention_mask=q_input['attention_mask'].to(device),
+                max_new_tokens=params_dict["max_tokens"],
+                do_sample=False,
+                top_p=params_dict["top_p"],
+                top_k=params_dict["top_k"],
+            )
+        outputs = tokenizer.batch_decode(output, skip_special_tokens=True)
     return outputs
 
 

@@ -547,7 +547,7 @@ def make_mhellaswag_config():
         'guanaco': r"### Input:\nUser: {data['question']}\n### Response:\n",
         'phoenix': r"Human: <s>{data['question']}</s>Assistant: <s>",
         'guanaco-13b': r"### Human: {data['question']}\n### Assistant:",
-        'null': r"{data['question']}  + '[SPLIT]'"
+        'null': r"{data['question']} [SPLIT]"
     }
 
     for lang in lang_list:
@@ -560,11 +560,10 @@ def make_mhellaswag_config():
             data['fewshot'] = 0
             data['generate']['params'] = ""
             data['generate']['method'] = "loglikelihood"
-            data['postprocess'] = 'general_torch_ppl_norm'
-            # if model != 'null':
-            #     data['postprocess'] = 'general_torch_ppl_norm'
-            # else:
-            #     data['postprocess'] = 'transformer_ppl_norm'
+            if model == "null":
+                data['postprocess'] = ''
+            else:
+                data['postprocess'] = 'general_torch_ppl_norm'
             with open(output_path, 'w') as f:
                 json.dump(data, f)
                 

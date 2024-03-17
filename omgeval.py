@@ -62,11 +62,11 @@ def omg_eval(models, languages):
     
     
 if __name__ == '__main__':
-    # models = ['aya', 'aya-101']
-    models = ['aya']
+    models = ['aya', 'aya-101']
+    # models = ['aya']
     # models = ['guanaco-7b']
-    # languages = ['en', 'fr', 'es', 'ru', 'zh']
-    languages = ['zh']
+    languages = ['en', 'fr', 'es', 'ru', 'zh']
+    # languages = ['zh']
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--models', type=str, default=models)
