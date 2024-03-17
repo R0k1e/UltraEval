@@ -1,0 +1,1 @@
+{"task_name": "m-arc_guanaco-13b_zh", "path": "datasets/m-arc/data/zh.jsonl", "description": "", "transform": "datasets/m-arc/transform_ppl_guanaco-13b_zh.py", "fewshot": 0, "generate": {"method": "loglikelihood", "params": ""}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "log_prob"}}}}

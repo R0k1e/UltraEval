@@ -45,24 +45,29 @@ template_dict = {
     'aya-new': 'okapi',
     'aya-101': 'null',
     'aya-hf': 'okapi',
+    'bloom': 'bloom',
+    'okapi': 'okapi',
+    'polyalpaca': 'polyalpaca',
+    'polychat': 'polychat',
 }
 
 model_path = {
     'UltraLink': "/data/public/wangshuo/UltraLink/models/UltraLink",
     'aya': "/home/wanghaoyu/mAlign-shuo-dev/aya-5lang-lr2e-5/checkpoints/step_23400/_hf",
     'aya-new': "/home/wanghaoyu/mAlign-shuo-dev/aya-5lang-paperset/checkpoints/step_11700_hf",
-    'aya-101': "/home/wanghaoyu/aya/aya-101",
+    'aya-101': "/data/public/wangshuo/UltraLink/models/aya-101",
     'aya-hf': "/data/public/wangshuo/UltraLink/models/aya_hf",
-    'bloom': "/data/public/wangshuo/bloomz-7b1-mt",
-    'okapi': "/data/public/wangshuo/PolyLM-multialpaca-13b",
-    'polychat': "/data/public/wangshuo/polylm-chat-13b",
+    'bloom': "/data/public/wangshuo/UltraLink/models/bloomz-7b1-mt",
+    'okapi': "/data/public/wangshuo/UltraLink/models/okapi",
+    'polychat': "/data/public/wangshuo/UltraLink/models/polylm-chat-13b",
+    'polyalpaca': "/data/public/wangshuo/UltraLink/models/PolyLM-multialpaca-13b",
     'llama-7b': "/data/public/opensource_models/meta-llama/Llama-2-7b-chat-hf",
     'llama-13b': "/data/public/opensource_models/meta-llama/Llama-2-13b-hf",
     'llama-70b': "/data/public/opensource_models/meta-llama/Llama-2-70b-chat-hf",
-    'phoenix-7b': " /home/wanghaoyu/analyse_data/phoenix-inst-chat-7b",
-    'chimera-13b': " /home/wanghaoyu/analyse_data/chimera-inst-chat-13b",
-    'guanaco-13b': " /home/wanghaoyu/analyse_data/guanaco-13b-hf",
-    'guanaco-7b': " /home/wanghaoyu/analyse_data/Guanaco",
+    'phoenix-7b': "/data/public/wangshuo/UltraLink/models/phoenix-inst-chat-7b",
+    'chimera-13b': "/data/public/wangshuo/UltraLink/models/chimera-inst-chat-13b",
+    'guanaco-13b': "/data/public/wangshuo/UltraLink/models/guanaco-13b-hf",
+    'guanaco-7b': "/data/public/wangshuo/UltraLink/models/Guanaco",
 }
 
 def auto_test(model):

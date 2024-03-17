@@ -1,0 +1,1 @@
+{"task_name": "m-arc_bloom_ru", "path": "datasets/m-arc/data/ru.jsonl", "description": "", "transform": "datasets/m-arc/transform_ppl_bloom_ru.py", "fewshot": 0, "generate": {"method": "loglikelihood", "params": ""}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "log_prob"}}}}

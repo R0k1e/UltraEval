@@ -12,13 +12,13 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     if answer is None:
         raise ValueError("Invalid data `{}`".format(data))
 
-    choice_style = "({})"
+    choice_style = "{}"
 
     sep_style = " "
 
     idx_style = "ABCD"
     
-    prompt = "Question\n{{question}}\n\nOptions\n{{options}}\n\nAnswer\n"
+    prompt = "Question\n{question}\n\nOptions\n{options}\n\nAnswer\n"
 
     options = []
     for i, choice in enumerate(choices):

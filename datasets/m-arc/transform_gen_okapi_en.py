@@ -7,7 +7,7 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     text = ""
     for idx, option in enumerate(options):
         text += f"{chr(65+idx)}. {option}\n"
-    text = "Question:\n" + data["question"] + "\n" + "Requirement:\nChoose and answer the letter of the correct answer.\n" + "Options:\n" + text
+    text = "Question:\n" + data["question"] + "\n" + "Requirement:\nChoose and answer the letter of the correct answer.\n" +"Please put the selected option at the beginning of the answer.\n"+ "Options:\n" + text
     text = f"""[INST] {text} [/INST]""" + "Answer:\n"
     index_of_correct_answer = list(data["target_scores"].values()).index(1)
     correct_answer = chr(65 + index_of_correct_answer)

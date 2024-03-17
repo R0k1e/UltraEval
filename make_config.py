@@ -201,7 +201,7 @@ def make_mmlu_config():
     input_path = "./datasets/m-mmlu/config/m-mmlu_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'es', 'fr', 'ru']
-    model_list = ["okapi", 'null']
+    model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null"]
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -212,7 +212,7 @@ def make_mmlu_config():
             data = copy.deepcopy(origin_data)
             data['task_name'] = f'm-mmlu_{model}_{lang}'
             data['path'] = f"datasets/m-mmlu/data/{lang}.jsonl"
-            data['transform'] = f"datasets/m-mmlu/transform_gen_v0.py"
+            data['transform'] = f"datasets/m-mmlu/transform_gen_{model}_{lang}.py"
             data['fewshot'] = 5
             data['generate']['params'] = "models/model_params/vllm_sample_v1.json"
             data['postprocess'] = ''
@@ -223,16 +223,22 @@ def make_mmlu_config():
     
     templates = {
         'okapi': r"[INST] {prompt} [/INST]",
+        'bloom': r"{prompt}", #instruction + question
+        'polyalpaca': r"{prompt.strip()}\n\n",
+        'polychat': r"<|user|>\n{prompt.strip()}<|assistant|>\n",
+        'guanaco': r"### Input:\nUser: {prompt}\n### Response:\n",
+        'phoenix': r"Human: <s>{prompt}</s>Assistant: <s>",
+        'guanaco-13b': r"### Human: {prompt}\n### Assistant:",
         'null': r"{prompt}"
     }
 
 
     instructions = {
-        "en": r'"Question\n{{question}}\n\nOptions\n{{options}}\n\nAnswer\n"',
-        'zh': r'"问题\n{{question}}\n\n选项\n{{options}}\n\n答案\n"',
-        'es': r'"Pregunta\n{{question}}\n\nOpción\n{{options}}\n\nContesta\n"',
-        'fr': r'"Question\n{{question}}\n\nOptions\n{{options}}\n\nAnswer\n"',
-        'ru': r'"Вопрос\n{{question}}\n\nВарианты\n{{options}}\n\nОтвет\n"',
+        "en": r'"Question\n{question}\n\nOptions\n{options}\n\nAnswer\n"',
+        'zh': r'"问题\n{question}\n\n选项\n{options}\n\n答案\n"',
+        'es': r'"Pregunta\n{question}\n\nOpción\n{options}\n\nContesta\n"',
+        'fr': r'"Question\n{question}\n\nOptions\n{options}\n\nAnswer\n"',
+        'ru': r'"Вопрос\n{question}\n\nВарианты\n{options}\n\nОтвет\n"',
     }
 
 
@@ -254,7 +260,7 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     if answer is None:
         raise ValueError("Invalid data `{{}}`".format(data))
 
-    choice_style = "({{}})"
+    choice_style = "{{}}"
 
     sep_style = " "
 
@@ -386,7 +392,7 @@ def make_marc_config():
     input_path = "datasets/m-arc/config/m-arc_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'fr', 'ru', "es"]
-    model_list = ["okapi", 'null']
+    model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null"]
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -425,6 +431,12 @@ def make_marc_config():
     
     templates = {
         'okapi': r"[INST] {text} [/INST]",
+        'bloom': r"{text}", #instruction + question
+        'polyalpaca': r"{text.strip()}\n\n",
+        'polychat': r"<|user|>\n{text.strip()}<|assistant|>\n",
+        'guanaco': r"### Input:\nUser: {text}\n### Response:\n",
+        'phoenix': r"Human: <s>{text}</s>Assistant: <s>",
+        'guanaco-13b': r"### Human: {text}\n### Assistant:",
         'null': r"{text}"
     }
 
@@ -436,13 +448,15 @@ def make_marc_config():
     #     'fr': r'"Question:\n" + data["question"] + "\n" + "Exigence:\nChoisissez et répondez à la lettre de la bonne réponse. Il suffit de donner les lettres d\'option.\n" + "Option:\n" + text ',
     #     'ru': r'"Вопрос:\n" + data["question"] + "\n" + "Требование:\nВыберите и ответьте на букву правильного ответа. Вам просто нужно указать буквы опций.\n" + "Варианты:\n" + text '
     # }
-    
+
+    # introduce prompt to force llm to display the answer at the beginning of the response
+    # not introducing is better
     instructions = {
-        "en": r'"Question:\n" + data["question"] + "\n" + "Requirement:\nChoose and answer the letter of the correct answer.\n" + "Options:\n" + text',
-        'zh': r'"问题：\n" + data["question"] + "\n" + "要求：\n选择并回答正确答案的字母。\n" + "选项：\n" + text ',
-        'es': r'"Pregunta:\n" + data["question"] + "\n" + "Petición:\nElige y contesta la letra de la respuesta correcta. Coloque la letra de su elección al principio de su respuesta.\n" + "Opciones:\n" + text ',
-        'fr': r'"Question:\n" + data["question"] + "\n" + "Exigence:\nChoisissez et répondez à la lettre de la bonne réponse.\n" + "Option:\n" + text ',
-        'ru': r'"Вопрос:\n" + data["question"] + "\n" + "Требование:\nВыберите и ответьте на букву правильного ответа.\n" + "Варианты:\n" + text '
+        "en": r'"Question:\n" + data["question"] + "\n" + "Requirement:\nChoose and answer the letter of the correct answer.\n" +"Please put the selected option at the beginning of the answer.\n"+ "Options:\n" + text',
+        'zh': r'"问题：\n" + data["question"] + "\n" + "要求：\n选择并回答正确答案的字母。\n" +"请将所选选项放在答案的开头。\n"+ "选项：\n" + text ',
+        'es': r'"Pregunta:\n" + data["question"] + "\n" + "Petición:\nElige y contesta la letra de la respuesta correcta. Coloque la letra de su elección al principio de su respuesta.\n" +"Por favor, coloque la opción seleccionada al principio de la respuesta.\n"+ "Opciones:\n" + text ',
+        'fr': r'"Question:\n" + data["question"] + "\n" + "Exigence:\nChoisissez et répondez à la lettre de la bonne réponse.\n" +"Veuillez placer l\'option sélectionnée au début de la réponse.\n"+ "Option:\n" + text ',
+        'ru': r'"Вопрос:\n" + data["question"] + "\n" + "Требование:\nВыберите и ответьте на букву правильного ответа.\n" +"Пожалуйста, поместите выбранный вариант в начало ответа.\n"+ "Варианты:\n" + text '
     }
     
     question_template = {
@@ -520,13 +534,19 @@ def make_mhellaswag_config():
     input_path = "datasets/hellaswag/config/hellaswag_ppl.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['en', 'zh', 'fr', 'ru', "es"]
-    model_list = ["okapi", 'null']
+    model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null"]
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
 
     templates = {
         'okapi': r"[INST] {data['question']} [/INST]",
+        'bloom': r"{data['question']}", #instruction + question
+        'polyalpaca': r"{data['question'].strip()}\n\n",
+        'polychat': r"<|user|>\n{data['question'].strip()}<|assistant|>\n",
+        'guanaco': r"### Input:\nUser: {data['question']}\n### Response:\n",
+        'phoenix': r"Human: <s>{data['question']}</s>Assistant: <s>",
+        'guanaco-13b': r"### Human: {data['question']}\n### Assistant:",
         'null': r"{data['question']}  + '[SPLIT]'"
     }
 
@@ -771,7 +791,7 @@ if __name__ == '__main__':
     # make_mgsm_config()
     # make_omgeval_config()
     # make_humaneval_config()
-    # make_marc_config()
-    # make_mhellaswag_config()
-    # make_mmlu_config()
-    make_xnli_config()
+    make_marc_config()
+    make_mhellaswag_config()
+    make_mmlu_config()
+    # make_xnli_config()

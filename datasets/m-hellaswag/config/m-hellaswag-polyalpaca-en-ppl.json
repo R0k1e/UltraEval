@@ -1,0 +1,1 @@
+{"task_name": "m-hellaswag_polyalpaca_en", "path": "datasets/m-hellaswag/data/en.jsonl", "description": "", "transform": "datasets/m-hellaswag/transform_ppl_polyalpaca_en.py", "fewshot": 0, "generate": {"method": "loglikelihood", "params": ""}, "postprocess": "general_torch_ppl_norm", "metric": {"accuracy": {"evaluation": {"type": "log_prob"}}}}

@@ -50,6 +50,7 @@ python main.py \
     --output_base_path $OUTPUT_BASE_PATH \
     --batch_size $BATCH_SIZE \
     --postprocess general_torch \
+    --params models/model_params/vllm_sample_v1.json \
     --write_out \
     # --limit 2
 

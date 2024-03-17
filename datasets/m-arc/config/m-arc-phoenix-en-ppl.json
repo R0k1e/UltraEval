@@ -1,0 +1,1 @@
+{"task_name": "m-arc_phoenix_en", "path": "datasets/m-arc/data/en.jsonl", "description": "", "transform": "datasets/m-arc/transform_ppl_phoenix_en.py", "fewshot": 0, "generate": {"method": "loglikelihood", "params": ""}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "log_prob"}}}}
