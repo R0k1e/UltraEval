@@ -19,7 +19,7 @@ args = parser.parse_args()
 
 # languages = ['en', 'zh', 'es', 'ru', 'fr']
 languages = args.languages.split(',')
-# model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", 'aya', 'aya-101', "UltraLink"]
+# model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", 'aya', 'aya-101', "UltraLink", 'minicpm']
 model_list = args.model_list.split(',')
 # test_list = ['humaneval', 'mgsm', 'omgeval', 'm-mmlu', 'belebele', 'xwinograd', 'm-arc', 'm-hellaswag']
 test_list = args.test_list.split(',')
@@ -49,12 +49,12 @@ template_dict = {
     'okapi': 'okapi',
     'polyalpaca': 'polyalpaca',
     'polychat': 'polychat',
+    'minicpm': "minicpm"
 }
 
 model_path = {
     'UltraLink': "/data/public/wangshuo/UltraLink/models/UltraLink",
     'aya': "/home/wanghaoyu/mAlign-shuo-dev/aya-5lang-lr2e-5/checkpoints/step_23400/_hf",
-    'aya-new': "/home/wanghaoyu/mAlign-shuo-dev/aya-5lang-paperset/checkpoints/step_11700_hf",
     'aya-101': "/data/public/wangshuo/UltraLink/models/aya-101",
     'aya-hf': "/data/public/wangshuo/UltraLink/models/aya_hf",
     'bloom': "/data/public/wangshuo/UltraLink/models/bloomz-7b1-mt",
@@ -68,6 +68,7 @@ model_path = {
     'chimera-13b': "/data/public/wangshuo/UltraLink/models/chimera-inst-chat-13b",
     'guanaco-13b': "/data/public/wangshuo/UltraLink/models/guanaco-13b-hf",
     'guanaco-7b': "/data/public/wangshuo/UltraLink/models/Guanaco",
+    'minicpm': "/data/public/wangshuo/UltraLink/models/MiniCPM-2B-sft-bf16-vllm"
 }
 
 def auto_test(model):
@@ -90,7 +91,7 @@ def auto_test(model):
             --gpuid  {gpu_id}\
             --port {port}""", 
             shell=True)
-        time.sleep(300)
+        time.sleep(60)
         if test_set in all_test_list:
             template_type = "all"
         for lang in languages:

@@ -1,12 +1,13 @@
 import json
 import os
 import copy
+lang_list = ['en', 'zh', 'es', 'fr', 'ru']
+model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null", "minicpm"]
 
 def make_mgsm_config():
     input_path = "./datasets/mgsm/config/mgsm_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
-    lang_list = ['en', 'zh', 'es', 'fr', 'ru']
-    model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null"]
+    
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -42,6 +43,7 @@ def make_mgsm_config():
         'guanaco': r"### Input:\nUser: {data['question']}\n### Response:\n",
         'phoenix': r"Human: <s>{data['question']}</s>Assistant: <s>",
         'guanaco-13b': r"### Human: {data['question']}\n### Assistant:",
+        'minicpm': r"<用户>{data['question']}<AI>",
         'null': r"{data['question']}"
     }
 
@@ -73,9 +75,6 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
 def make_humaneval_config():
     input_path = "./datasets/humaneval/config/humaneval_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
-    lang_list = ['en', 'zh', 'es', 'fr', 'ru']
-    model_list = ['okapi', 'guanaco', 'phoenix', "guanaco-13b", 'null']
-
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
 
@@ -113,6 +112,7 @@ def make_humaneval_config():
         'guanaco': r"### Input:User:INSTRUCTION{prompt}### Response:",
         'phoenix': r"Human: <s>INSTRUCTION{prompt}</s>Assistant: <s>",
         'guanaco-13b': r"### Human: INSTRUCTION{prompt}\n### Assistant:",
+        'minicpm': r"<用户>{prompt}<AI>",
         'null': r"INSTRUCTION{prompt}"
     }
 
@@ -135,8 +135,6 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
 def make_omgeval_config():
     input_path = "./datasets/omgeval/config/omgeval-en_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
-    lang_list = ['en', 'zh', 'es', 'fr', 'ru', 'ar']
-    model_list = ['okapi', 'guanaco', 'phoenix', 'llama', 'guanaco-13b', 'null']
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -157,10 +155,14 @@ def make_omgeval_config():
     input_path = "./datasets/omgeval/"
     templates = {
         'okapi': "[INST] {data['question']} [/INST]",
+        'bloom': "{data['question']}",
+        'polyalpaca': r"{data['question'].strip()}\n\n",
+        'polychat': r"<|user|>\n{data['question'].strip()}<|assistant|>\n",
         'guanaco': r"### Input:\nUser: {data['question']}\n### Response:\n",
         'phoenix': r"Human: <s>{data['question']}</s>Assistant: <s>",
         'guanaco-13b': r"### Human: {data['question']}\n### Assistant:",
         'llama' : r"""[INST] {data['question']} [/INST]""",
+        'minicpm': r"<用户>{prompt}<AI>",
         'null' : r"{data['question']}"
     }
     
@@ -200,8 +202,6 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
 def make_mmlu_config():
     input_path = "./datasets/m-mmlu/config/m-mmlu_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
-    lang_list = ['en', 'zh', 'es', 'fr', 'ru']
-    model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null"]
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -229,6 +229,7 @@ def make_mmlu_config():
         'guanaco': r"### Input:\nUser: {prompt}\n### Response:\n",
         'phoenix': r"Human: <s>{prompt}</s>Assistant: <s>",
         'guanaco-13b': r"### Human: {prompt}\n### Assistant:",
+        'minicpm': r"<用户>{prompt}<AI>",
         'null': r"{prompt}"
     }
 
@@ -288,7 +289,6 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
 def make_belebele_config():
     input_path = "datasets/Belebele/config/Belebele-en_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
-    lang_list = ['en', 'zh', 'es', 'fr', 'ru', "ja"]
     model_list = ["all"]
 
     with open(input_path, 'r') as f:
@@ -311,7 +311,6 @@ def make_belebele_config():
 def make_xcopa_config():
     input_path = "datasets/xcopa/config/copa_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
-    lang_list = ['en', 'zh', 'es', 'fr', 'ru', "ja"]
     model_list = ["all"]
 
     with open(input_path, 'r') as f:
@@ -332,10 +331,11 @@ def make_xcopa_config():
                 json.dump(data, f)
                 
 def make_xwinograd_config():
+    # TODO: add instructions
+    print("xwinograd not supported yet")
+    return 
     input_path = "datasets/xwinograd/config/xwinograd_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
-    lang_list = ['en', 'zh', 'fr', 'ru', "ja"]
-    model_list = ["okapi"]
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -391,8 +391,6 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
 def make_marc_config():
     input_path = "datasets/m-arc/config/m-arc_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
-    lang_list = ['en', 'zh', 'fr', 'ru', "es"]
-    model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null"]
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -437,6 +435,7 @@ def make_marc_config():
         'guanaco': r"### Input:\nUser: {text}\n### Response:\n",
         'phoenix': r"Human: <s>{text}</s>Assistant: <s>",
         'guanaco-13b': r"### Human: {text}\n### Assistant:",
+        'minicpm': r"<用户>{text}<AI>",
         'null': r"{text}"
     }
 
@@ -533,8 +532,6 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
 def make_mhellaswag_config():
     input_path = "datasets/hellaswag/config/hellaswag_ppl.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
-    lang_list = ['en', 'zh', 'fr', 'ru', "es"]
-    model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null"]
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -547,6 +544,7 @@ def make_mhellaswag_config():
         'guanaco': r"### Input:\nUser: {data['question']}\n### Response:\n",
         'phoenix': r"Human: <s>{data['question']}</s>Assistant: <s>",
         'guanaco-13b': r"### Human: {data['question']}\n### Assistant:",
+        'minicpm': r"<用户>{data['question']}<AI>",
         'null': r"{data['question']} [SPLIT]"
     }
 
@@ -593,8 +591,6 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
                 
     input_path = "datasets/hellaswag/config/hellaswag_gen.json"
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
-    lang_list = ['en', 'zh', 'fr', 'ru', "es"]
-    model_list = ["okapi", 'null']
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -613,69 +609,69 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
             with open(output_path, 'w') as f:
                 json.dump(data, f)
                 
-    input_path = "./datasets/m-hellaswag/"
+#     input_path = "./datasets/m-hellaswag/"
     
-    templates = {
-        'okapi': r"[INST] {text} [/INST]",
-        'null': r"{text}"
-    }
+#     templates = {
+#         'okapi': r"[INST] {text} [/INST]",
+#         'null': r"{text}"
+#     }
 
 
-    instructions = {
-        "en": r'''"Context:\n {data['question']}\nQuestion:\nWhich ending makes the most sense?\nRequirement:\nChoose and respond with the letter of the correct answer, including the parentheses.\nOptions:\n"''',
-        'zh': r'''"背景：\n {data['question']}\n问题：\n哪个结尾最合理？\n要求：\n选择并回答正确答案的字母，包括括号。\n选项：\n"''',
-        'es': r'''"Contexto:\n {data['question']}\nPregunta:\n¿Qué final tiene más sentido?\nRequisito:\nElige y responde con la letra de la respuesta correcta, incluyendo el paréntesis.\nOpciones:\n"''',
-        'fr': r'''"Contexte:\n {data['question']}\nQuestion:\nQuelle est la fin la plus logique?\nExigence:\nChoisissez et répondez avec la lettre de la bonne réponse, y compris les parenthèses.\nOptions:\n"''',
-        'ru': r'''"Контекст:\n {data['question']}\nВопрос:\nКакая концовка имеет наибольший смысл?\nТребования:\nВыберите и укажите букву правильного ответа, включая скобки.\nОпции:\n"''',
-    }
+#     instructions = {
+#         "en": r'''"Context:\n {data['question']}\nQuestion:\nWhich ending makes the most sense?\nRequirement:\nChoose and respond with the letter of the correct answer, including the parentheses.\nOptions:\n"''',
+#         'zh': r'''"背景：\n {data['question']}\n问题：\n哪个结尾最合理？\n要求：\n选择并回答正确答案的字母，包括括号。\n选项：\n"''',
+#         'es': r'''"Contexto:\n {data['question']}\nPregunta:\n¿Qué final tiene más sentido?\nRequisito:\nElige y responde con la letra de la respuesta correcta, incluyendo el paréntesis.\nOpciones:\n"''',
+#         'fr': r'''"Contexte:\n {data['question']}\nQuestion:\nQuelle est la fin la plus logique?\nExigence:\nChoisissez et répondez avec la lettre de la bonne réponse, y compris les parenthèses.\nOptions:\n"''',
+#         'ru': r'''"Контекст:\n {data['question']}\nВопрос:\nКакая концовка имеет наибольший смысл?\nТребования:\nВыберите и укажите букву правильного ответа, включая скобки.\nОпции:\n"''',
+#     }
     
-    lead_in = {
-        "en": r"Answer:\n",
-        'zh': r"答案：\n",
-        'es': r"Respuesta:\n",
-        'fr': r"Answer:\n",   
-        'ru': r"Ответ:\n"
-    }
+#     lead_in = {
+#         "en": r"Answer:\n",
+#         'zh': r"答案：\n",
+#         'es': r"Respuesta:\n",
+#         'fr': r"Answer:\n",   
+#         'ru': r"Ответ:\n"
+#     }
 
-    for lang in lang_list:
-        for model in model_list:
-            text = templates[model]
-            origin_code = f'''
-import random
+#     for lang in lang_list:
+#         for model in model_list:
+#             text = templates[model]
+#             origin_code = f'''
+# import random
 
 
-def transform(data, num_sample: int, r: random.Random, dataset_name: str):
-    options = ""
-    for idx, item in enumerate(data["target_scores"].keys()):
-        options += f"({{chr(65 + idx)}}) {{item}}\\n"
-    text = f{instructions[lang]} + options
-    text = f"""{templates[model]}""" + "{lead_in[lang]}"
-    index_of_correct_answer = list(data["target_scores"].values()).index(1)
-    correct_answer = chr(65 + index_of_correct_answer)
-    if correct_answer == "A":
-        correct_answer = ["A","А"]
-    elif correct_answer == "B":
-        correct_answer = ["B","Б"]
-    elif correct_answer == "C":
-        correct_answer = ["C","В","С"]
-    elif correct_answer == "D":
-        correct_answer = ["D","Д"]
-    new = []
+# def transform(data, num_sample: int, r: random.Random, dataset_name: str):
+#     options = ""
+#     for idx, item in enumerate(data["target_scores"].keys()):
+#         options += f"({{chr(65 + idx)}}) {{item}}\\n"
+#     text = f{instructions[lang]} + options
+#     text = f"""{templates[model]}""" + "{lead_in[lang]}"
+#     index_of_correct_answer = list(data["target_scores"].values()).index(1)
+#     correct_answer = chr(65 + index_of_correct_answer)
+#     if correct_answer == "A":
+#         correct_answer = ["A","А"]
+#     elif correct_answer == "B":
+#         correct_answer = ["B","Б"]
+#     elif correct_answer == "C":
+#         correct_answer = ["C","В","С"]
+#     elif correct_answer == "D":
+#         correct_answer = ["D","Д"]
+#     new = []
 
-    for c in correct_answer:
-        new.append(f'({{c}})')
-    correct_answer = new
-    processed_correct_answer = correct_answer
-    return {{
-        "input": text,
-        "output": correct_answer,
-        "processed_output": processed_correct_answer,
-    }}
+#     for c in correct_answer:
+#         new.append(f'({{c}})')
+#     correct_answer = new
+#     processed_correct_answer = correct_answer
+#     return {{
+#         "input": text,
+#         "output": correct_answer,
+#         "processed_output": processed_correct_answer,
+#     }}
 
-    '''
-            output_path = os.path.join(input_path, f"transform_gen_{model}_{lang}.py")  
-            with open(output_path, 'w') as f:
-                f.write(origin_code)
+#     '''
+#             output_path = os.path.join(input_path, f"transform_gen_{model}_{lang}.py")  
+#             with open(output_path, 'w') as f:
+#                 f.write(origin_code)
 
 
 
@@ -684,6 +680,22 @@ def make_xnli_config():
     os.makedirs(os.path.dirname(input_path), exist_ok=True)
     lang_list = ['ar', 'bg', 'de', 'el', 'en', 'es', 'fr', 'hi', 'ru', 'sw', 'th', 'tr', 'ur', 'vi', 'zh']
     model_list = ["okapi", 'null']
+    
+    def get_vocab(lang):
+        script_dir = "./datasets/xnli/"
+        with open(os.path.join(script_dir, "vocab.jsonl"), "r", encoding="utf-8") as vocab_file:
+            for line in vocab_file:
+                line = line.replace("\\", "\\\\\\")
+                line = line.replace(r"\\\n",r"\\n")
+                data_entry = json.loads(line.strip())
+                if data_entry["lang"] == lang:
+                    return {
+                        "question": data_entry["question"],
+                        "contradiction": data_entry["contradiction"],
+                        "neutral": data_entry["neutral"],
+                        "entailment": data_entry["entailment"]
+                    }
+        return None
 
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
@@ -767,29 +779,15 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
                 
 
 
-def get_vocab(lang):
-    script_dir = "./datasets/xnli/"
-    with open(os.path.join(script_dir, "vocab.jsonl"), "r", encoding="utf-8") as vocab_file:
-        for line in vocab_file:
-            line = line.replace("\\", "\\\\\\")
-            line = line.replace(r"\\\n",r"\\n")
-            data_entry = json.loads(line.strip())
-            if data_entry["lang"] == lang:
-                return {
-                    "question": data_entry["question"],
-                    "contradiction": data_entry["contradiction"],
-                    "neutral": data_entry["neutral"],
-                    "entailment": data_entry["entailment"]
-                }
-    return None
+
 
                 
 if __name__ == '__main__':
     # make_belebele_config()
     # make_xwinograd_config()
-    # make_mgsm_config()
-    # make_omgeval_config()
-    # make_humaneval_config()
+    make_mgsm_config()
+    make_omgeval_config()
+    make_humaneval_config()
     make_marc_config()
     make_mhellaswag_config()
     make_mmlu_config()

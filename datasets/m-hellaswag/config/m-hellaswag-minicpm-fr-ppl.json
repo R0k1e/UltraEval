@@ -1,0 +1,1 @@
+{"task_name": "m-hellaswag_minicpm_fr", "path": "datasets/m-hellaswag/data/fr.jsonl", "description": "", "transform": "datasets/m-hellaswag/transform_ppl_minicpm_fr.py", "fewshot": 0, "generate": {"method": "loglikelihood", "params": ""}, "postprocess": "general_torch_ppl_norm", "metric": {"accuracy": {"evaluation": {"type": "log_prob"}}}}

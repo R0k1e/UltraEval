@@ -1,0 +1,1 @@
+{"task_name": "mgsm_minicpm_fr", "path": "datasets/mgsm/data/mgsm_fr.jsonl", "description": "", "transform": "datasets/mgsm/transform_gen_minicpm_fr.py", "fewshot": 0, "generate": {"method": "generate", "params": "models/model_params/vllm_sample_math_zero.json"}, "postprocess": "mgsm_zero_post", "metric": {"accuracy": {"evaluation": {"type": "exact_match"}}}}

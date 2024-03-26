@@ -21,6 +21,6 @@ MODEL=$1
 echo $MODEL
 python URLs/vllm_url.py \
     --model_name  $MODEL\
-    --gpuid  0,1\
+    --gpuid  0,1,2,3,4,5,6,7\
     --port 6323
 

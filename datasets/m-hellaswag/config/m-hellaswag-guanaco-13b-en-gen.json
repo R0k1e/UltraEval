@@ -1,0 +1,1 @@
+{"task_name": "m-hellaswag_guanaco-13b_en", "path": "datasets/m-hellaswag/data/en.jsonl", "description": "", "transform": "datasets/m-hellaswag/transform_gen_guanaco-13b_en.py", "fewshot": 0, "generate": {"method": "generate", "params": "models/model_params/vllm_sample.json"}, "postprocess": "", "metric": {"accuracy": {"evaluation": {"type": "qa_match"}}}}
