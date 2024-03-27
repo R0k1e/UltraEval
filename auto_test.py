@@ -10,6 +10,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--gpu_id', type=str, help='gpu id')
 parser.add_argument('--port', type=int, help='port')
 parser.add_argument('--model_list', type=str, help='model list')
+# model_path: If not specified, use the default path. 
+#             If specified, each model have to specify a path at its corresponding position.
+parser.add_argument('--model_path', type=str, default="default", help='model path')
 parser.add_argument('--test_list', type=str, help='test list')
 parser.add_argument('--languages', type=str,  help='languages')
 args = parser.parse_args()
@@ -22,6 +25,7 @@ languages = args.languages.split(',')
 # model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", 'aya', 'aya-101', "UltraLink", 'minicpm']
 model_list = args.model_list.split(',')
 # test_list = ['humaneval', 'mgsm', 'omgeval', 'm-mmlu', 'belebele', 'xwinograd', 'm-arc', 'm-hellaswag']
+model_path = args.model_path.split(',')
 test_list = args.test_list.split(',')
 port = args.port
 gpu_id= args.gpu_id
@@ -52,7 +56,7 @@ template_dict = {
     'minicpm': "minicpm"
 }
 
-model_path = {
+default_model_path = {
     'UltraLink': "/data/public/wangshuo/UltraLink/models/UltraLink",
     'aya': "/home/wanghaoyu/mAlign-shuo-dev/aya-5lang-lr2e-5/checkpoints/step_23400/_hf",
     'aya-101': "/data/public/wangshuo/UltraLink/models/aya-101",
@@ -102,6 +106,14 @@ def auto_test(model):
         os.system(f"kill -9 %")
         time.sleep(30)
 if __name__ == '__main__':
+
+    # no model_path specified, use the default path
+    if model_path[0] == "default":
+        model_path = {model:default_model_path[model] for model in model_list}
+    else:
+        model_path = {model:model_path[i] for i, model in enumerate(model_list)}
+    
+    print(f"model_path: {model_path}")
     for model in model_list:
         auto_test(model)
         

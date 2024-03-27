@@ -1,8 +1,22 @@
 import json
 import os
 import copy
-lang_list = ['en', 'zh', 'es', 'fr', 'ru']
-model_list = ['okapi', 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null", "minicpm"]
+lang_list = ['en']#, 'zh', 'es', 'fr', 'ru']
+model_list = ['okapi']#, 'bloom', 'polyalpaca', 'polychat', 'guanaco', 'phoenix', "guanaco-13b", "null", "minicpm"]
+
+# prompt= instruction + question + (choices)
+# Define prompt before using templates
+templates = { 
+    'okapi': r"[INST] {prompt} [/INST]",
+    'bloom': r"{prompt}", #instruction + question
+    'polyalpaca': r"{prompt.strip()}\n\n",
+    'polychat': r"<|user|>\n{prompt.strip()}<|assistant|>\n",
+    'guanaco': r"### Input:\nUser: {prompt}\n### Response:\n",
+    'phoenix': r"Human: <s>{prompt}</s>Assistant: <s>",
+    'guanaco-13b': r"### Human: {prompt}\n### Assistant:",
+    'minicpm': r"<用户>{prompt}<AI>",
+    'null': r"{prompt}"
+}
 
 def make_mgsm_config():
     input_path = "./datasets/mgsm/config/mgsm_gen.json"
@@ -35,18 +49,6 @@ def make_mgsm_config():
         "ru": "Пожалуйста, ответьте на следующий вопрос:"
     }
 
-    templates = {
-        'okapi': "[INST] {data['question']} [/INST]",
-        'bloom': "{data['question']}", #instruction + question
-        'polyalpaca': r"{data['question'].strip()}\n\n",
-        'polychat': r"<|user|>\n{data['question'].strip()}<|assistant|>\n",
-        'guanaco': r"### Input:\nUser: {data['question']}\n### Response:\n",
-        'phoenix': r"Human: <s>{data['question']}</s>Assistant: <s>",
-        'guanaco-13b': r"### Human: {data['question']}\n### Assistant:",
-        'minicpm': r"<用户>{data['question']}<AI>",
-        'null': r"{data['question']}"
-    }
-
 
     for lang in lang_list:
         for model in model_list:
@@ -58,6 +60,7 @@ def make_mgsm_config():
 import random
 from UltraEval.tasks.postprocess import GSM8KPost
 def transform(data, num_sample: int, r: random.Random, dataset_name: str):
+    prompt = data['question']
     text = f"{text}"
     correct_answer = data["answer"]
     gsm8kp = GSM8KPost()
@@ -104,27 +107,15 @@ def make_humaneval_config():
         'ru': "Создайте скрипт Python для этой задачи. Скрипт Python должен быть включен в ```python``` теги."
     }
 
-    templates = {
-        'okapi': r"[INST]INSTRUCTION\n{prompt}\n\n[/INST]",
-        'bloom': r"INSTRUCTION{prompt}", #instruction + question
-        'polyalpaca': r"{prompt.strip()}\n\n",
-        'polychat': r"<|user|>\nINSTRUCTION\n{prompt.strip()}\n\n<|assistant|>\n",
-        'guanaco': r"### Input:User:INSTRUCTION{prompt}### Response:",
-        'phoenix': r"Human: <s>INSTRUCTION{prompt}</s>Assistant: <s>",
-        'guanaco-13b': r"### Human: INSTRUCTION{prompt}\n### Assistant:",
-        'minicpm': r"<用户>{prompt}<AI>",
-        'null': r"INSTRUCTION{prompt}"
-    }
-
 
     for lang in lang_list:
         for model in model_list:
-            text = templates[model].replace("INSTRUCTION", instructions[lang])
+            text = templates[model]#.replace("INSTRUCTION", instructions[lang])
             origin_code = f'''
 import random
 
 def transform(data, num_sample: int, r: random.Random, dataset_name: str):
-    prompt = data['prompt'].strip().replace("    ", "\\t")
+    prompt = "{instructions[lang]}" + data['prompt'].strip().replace("    ", "\\t")
     temp_input = f"""{text}"""
     return {{"input": temp_input, "output": "", "processed_output": ""}}
     '''
@@ -153,18 +144,6 @@ def make_omgeval_config():
                 json.dump(data, f)
     
     input_path = "./datasets/omgeval/"
-    templates = {
-        'okapi': "[INST] {data['question']} [/INST]",
-        'bloom': "{data['question']}",
-        'polyalpaca': r"{data['question'].strip()}\n\n",
-        'polychat': r"<|user|>\n{data['question'].strip()}<|assistant|>\n",
-        'guanaco': r"### Input:\nUser: {data['question']}\n### Response:\n",
-        'phoenix': r"Human: <s>{data['question']}</s>Assistant: <s>",
-        'guanaco-13b': r"### Human: {data['question']}\n### Assistant:",
-        'llama' : r"""[INST] {data['question']} [/INST]""",
-        'minicpm': r"<用户>{prompt}<AI>",
-        'null' : r"{data['question']}"
-    }
     
     instructions = {
         "en": "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.",
@@ -187,6 +166,7 @@ def make_omgeval_config():
 import random
 
 def transform(data, num_sample: int, r: random.Random, dataset_name: str):
+    prompt = data['question']
     text = f"""{text}"""
     return {{
         "input": text, 
@@ -221,17 +201,6 @@ def make_mmlu_config():
     
     input_path = "./datasets/m-mmlu/"
     
-    templates = {
-        'okapi': r"[INST] {prompt} [/INST]",
-        'bloom': r"{prompt}", #instruction + question
-        'polyalpaca': r"{prompt.strip()}\n\n",
-        'polychat': r"<|user|>\n{prompt.strip()}<|assistant|>\n",
-        'guanaco': r"### Input:\nUser: {prompt}\n### Response:\n",
-        'phoenix': r"Human: <s>{prompt}</s>Assistant: <s>",
-        'guanaco-13b': r"### Human: {prompt}\n### Assistant:",
-        'minicpm': r"<用户>{prompt}<AI>",
-        'null': r"{prompt}"
-    }
 
 
     instructions = {
@@ -426,18 +395,6 @@ def make_marc_config():
                 json.dump(data, f)
     
     input_path = "./datasets/m-arc/"
-    
-    templates = {
-        'okapi': r"[INST] {text} [/INST]",
-        'bloom': r"{text}", #instruction + question
-        'polyalpaca': r"{text.strip()}\n\n",
-        'polychat': r"<|user|>\n{text.strip()}<|assistant|>\n",
-        'guanaco': r"### Input:\nUser: {text}\n### Response:\n",
-        'phoenix': r"Human: <s>{text}</s>Assistant: <s>",
-        'guanaco-13b': r"### Human: {text}\n### Assistant:",
-        'minicpm': r"<用户>{text}<AI>",
-        'null': r"{text}"
-    }
 
     #有一句你只需要给出选项字母即可
     # instructions = {
@@ -486,6 +443,7 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     for idx, option in enumerate(options):
         text += f"{{chr(65+idx)}}. {{option}}\\n"
     text = {instructions[lang]}
+    prompt = text
     text = f"""{templates[model]}""" + "{lead_in[lang]}"
     index_of_correct_answer = list(data["target_scores"].values()).index(1)
     correct_answer = chr(65 + index_of_correct_answer)
@@ -536,17 +494,6 @@ def make_mhellaswag_config():
     with open(input_path, 'r') as f:
         origin_data = json.load(f)
 
-    templates = {
-        'okapi': r"[INST] {data['question']} [/INST]",
-        'bloom': r"{data['question']}", #instruction + question
-        'polyalpaca': r"{data['question'].strip()}\n\n",
-        'polychat': r"<|user|>\n{data['question'].strip()}<|assistant|>\n",
-        'guanaco': r"### Input:\nUser: {data['question']}\n### Response:\n",
-        'phoenix': r"Human: <s>{data['question']}</s>Assistant: <s>",
-        'guanaco-13b': r"### Human: {data['question']}\n### Assistant:",
-        'minicpm': r"<用户>{data['question']}<AI>",
-        'null': r"{data['question']} [SPLIT]"
-    }
 
     for lang in lang_list:
         for model in model_list:
@@ -574,6 +521,7 @@ def make_mhellaswag_config():
 import random    
         
 def transform(data, num_sample: int, r: random.Random, dataset_name: str):
+    prompt = data['question']
     text = f"{text} " 
     correct_answer = [
         key for key, value in data["target_scores"].items() if value == 1
@@ -610,11 +558,6 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
                 json.dump(data, f)
                 
 #     input_path = "./datasets/m-hellaswag/"
-    
-#     templates = {
-#         'okapi': r"[INST] {text} [/INST]",
-#         'null': r"{text}"
-#     }
 
 
 #     instructions = {
@@ -732,10 +675,6 @@ def make_xnli_config():
     
     input_path = "./datasets/xnli/"
     
-    templates = {
-        'okapi': r"[INST] {text} [/INST]",
-        'null': r"{text}"
-    }
 
     for lang in lang_list:
         vocab = get_vocab(lang)
@@ -746,6 +685,8 @@ import random
 
 def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     text = f"{vocab["question"]}"
+    prompt = text
+    text = f"""{templates[model]}"""
     index_of_correct_answer = list(data["target_scores"].values()).index(1)
     answers = ["A", "B", "C"]
     correct_answer = answers[index_of_correct_answer]
@@ -777,18 +718,14 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
             with open(output_path, 'w') as f:
                 f.write(origin_code)
                 
-
-
-
-
                 
 if __name__ == '__main__':
     # make_belebele_config()
     # make_xwinograd_config()
-    make_mgsm_config()
-    make_omgeval_config()
-    make_humaneval_config()
-    make_marc_config()
+    # make_mgsm_config()
+    # make_omgeval_config()
+    # make_humaneval_config()
+    #make_marc_config()
     make_mhellaswag_config()
-    make_mmlu_config()
+    #make_mmlu_config()
     # make_xnli_config()
