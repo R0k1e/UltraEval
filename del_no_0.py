@@ -3,6 +3,7 @@
 import json
 import os
 
+#删除没有正确选项的数据
 input_dir = "/home/wanghaoyu/UltraEval/datasets/m-hellaswag/data"
 for file in os.listdir(input_dir):
     if file.endswith(".json") or file.endswith(".jsonl"):

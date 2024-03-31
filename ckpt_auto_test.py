@@ -3,10 +3,10 @@ import sys
 import time
 import subprocess
 
-ckpt_path = "/home/wanghaoyu/MiniCPM/finetune/MiniCPM-2B-history/ru_all/20240330223737"
+ckpt_path = "/home/wanghaoyu/MiniCPM/finetune/MiniCPM-2B-history/ru_all/42_14_5e-5_100_1278_0.01/20240331111234"
 gpu_list = [0, 1, 2, 3]
 base_port = 6325
-model_type = "minicpm"
+model_type = "minicpm-raw"
 test_list = 'humaneval'
 languages = 'ru'
 
@@ -24,6 +24,7 @@ for id,ckpt in enumerate(ckpt_list):
     id = id % len(gpu_list)
     port_id = base_port + id
     gpu_id = gpu_list[id]
+    config_tag= ckpt_path.split("/")[-2]
     p = subprocess.Popen(f"""
             python auto_test.py \
                 --gpu_id {gpu_id} \
@@ -32,6 +33,7 @@ for id,ckpt in enumerate(ckpt_list):
                 --test_list {test_list} \
                 --languages {languages} \
                 --model_path {ckpt} \
+                --config_tag {config_tag} \
                     """, 
             shell=True)
     while process_list[id] is not None:
