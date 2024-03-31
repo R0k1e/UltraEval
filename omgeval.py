@@ -4,7 +4,7 @@ import subprocess
 import argparse
 import sys
 
-def omg_eval(models, languages):
+def omg_eval(models, languages, mode='all'):
     instance_path = "./result/omgeval"
     for model in os.listdir(instance_path):
         if model not in models:
@@ -51,9 +51,12 @@ def omg_eval(models, languages):
                 model_outputs = output_file_path
                 annotators_config = "alpaca_eval_gpt4_" + lang
                 # reference_outputs = "/home/wanghaoyu/alpaca_eval/baseline/gpt-3.5-turbo-0301/" + lang + ".json"
-                # reference_outputs = "/home/wanghaoyu/alpaca_eval/baseline/gpt-3.5-turbo-0613/" + lang + ".json"
-                reference_outputs = "../alpaca_eval/baseline/local/gpt3.5-turbo-" + lang + ".json"
-                # reference_outputs = "/home/wanghaoyu/alpaca_eval/baseline/polylm-chat-13b/" + lang + ".json"
+                if mode == 'all':
+                    reference_outputs = "../alpaca_eval/baseline/gpt-3.5-turbo-0613/" + lang + ".json"
+                elif mode == 'local':
+                    reference_outputs = "../alpaca_eval/baseline/local/gpt3.5-turbo-" + lang + ".json"
+                elif mode == 'global':
+                    reference_outputs = "../alpaca_eval/baseline/global/" + lang + ".json"
     
     
                 os.system("alpaca_eval --model_outputs " + model_outputs + " --annotators_config " + annotators_config + " --reference_outputs " + reference_outputs)
@@ -62,18 +65,21 @@ def omg_eval(models, languages):
     
     
 if __name__ == '__main__':
-    models = ['aya', 'aya-101']
-    # models = ['aya']
-    # models = ['guanaco-7b']
-    languages = ['en', 'fr', 'es', 'ru', 'zh']
-    # languages = ['zh']
+    models = ['chimera-13b', 'guanaco-7b', 'guanaco-13b', 'phoenix-7b', 'omg-lm', 'aya', 'aya-101']
+    # models = ['chimera-13b']
+    languages = ['en','zh','es','ru','fr', 'ar']
+    # languages = ['en','zh','es','ru','fr']
     
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--models', type=str, default=models)
-    parser.add_argument('--languages', type=str, default=languages)
-    args = parser.parse_args()
+    mode = 'all'
+    # mode = 'local'
+    # mode = 'global'
     
-    models = args.models.split(',')
-    languages = args.languages.split(',')
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--models', type=str, default=models)
+    # parser.add_argument('--languages', type=str, default=languages)
+    # args = parser.parse_args()
     
-    omg_eval(models, languages)
+    # models = args.models.split(',')
+    # languages = args.languages.split(',')
+    
+    omg_eval(models, languages, mode)

@@ -1,6 +1,6 @@
 import os
 import subprocess
-# from transform_humaneval import transform_humaneval
+from transform_humaneval import transform_humaneval
 from omgeval import omg_eval
 import time
 import signal
@@ -58,9 +58,8 @@ template_dict = {
 
 default_model_path = {
     'UltraLink': "/data/public/wangshuo/UltraLink/models/UltraLink",
-    'aya': "/home/wanghaoyu/mAlign-shuo-dev/aya-5lang-lr2e-5/checkpoints/step_23400/_hf",
     'aya-101': "/data/public/wangshuo/UltraLink/models/aya-101",
-    'aya-hf': "/data/public/wangshuo/UltraLink/models/aya_hf",
+    'aya-5lang': "/data/public/wangshuo/UltraLink/models/aya-5lang",
     'bloom': "/data/public/wangshuo/UltraLink/models/bloomz-7b1-mt",
     'okapi': "/data/public/wangshuo/UltraLink/models/okapi",
     'polychat': "/data/public/wangshuo/UltraLink/models/polylm-chat-13b",
@@ -81,29 +80,30 @@ def auto_test(model):
     else:
         batch_size = 128   
     print(f"batch_size: {batch_size}")
+    model_tag = model.split('/')[-1]
     template_type = template_dict[model]
     for test_set in test_list:
         if model == 'aya-101':
-            p = subprocess.Popen(f"""python URLs/transformer_url.py \
-            --model_name  {model_path[model]}\
-            --gpuid  {gpu_id}\
-            --port {port}""", 
-            shell=True)
+                p = subprocess.Popen(f"""python URLs/transformer_url.py \
+                --model_name  {model_path[model]}\
+                --gpuid  {gpu_id}\
+                --port {port}""", 
+                shell=True)
         else:
             p = subprocess.Popen(f"""python URLs/vllm_url.py \
             --model_name  {model_path[model]}\
             --gpuid  {gpu_id}\
             --port {port}""", 
             shell=True)
-        time.sleep(60)
+        time.sleep(120)
         if test_set in all_test_list:
             template_type = "all"
         for lang in languages:
-            os.system(f"bash scripts/{test_set}.sh {port} {model} {test_set}-{template_type}-{lang} {batch_size}")
+            os.system(f"bash scripts/{test_set}.sh {port} {model} {test_set}-{template_type}-{lang} {batch_size} {model_tag}")
         os.system(f"kill -9 {p.pid}")
         os.system(f"kill -9 {p.pid + 1}")
-        os.system(f"kill -9 %")
-        os.system(f"kill -9 %")
+        # os.system(f"kill -9 %")
+        # os.system(f"kill -9 %")
         time.sleep(30)
 if __name__ == '__main__':
 
@@ -117,10 +117,11 @@ if __name__ == '__main__':
     for model in model_list:
         auto_test(model)
         
-    # if 'humaneval' in test_list:
-    #     input_dir = "./result/humaneval"
-    #     result = transform_humaneval(input_dir)
-    #     for item in result:
-    #         print(result[item])
+    if 'humaneval' in test_list:
+        input_dir = "./result/humaneval"
+        result = transform_humaneval(input_dir)
+        for item in result:
+            print(result[item])
+            
     # if 'omgeval' in test_list:
     #     omg_eval(model_list, languages)

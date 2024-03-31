@@ -17,11 +17,11 @@
 #/data/public/opensource_models/meta-llama/Llama-2-7b-chat-hf
 
 
-# /home/wanghaoyu/mAlign-shuo-dev/ckpts/checkpoints/step_8900_hf
+MODEL=/home/wanghaoyu/mAlign-shuo-dev/ckpts/checkpoints/step_8900_hf
 
-MODEL=$1
+# MODEL=$1
 echo $MODEL
 python URLs/vllm_url.py \
     --model_name  $MODEL\
-    --gpuid  2,3\
+    --gpuid  6,7\
     --port 6325

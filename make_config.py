@@ -111,11 +111,12 @@ def make_humaneval_config():
     for lang in lang_list:
         for model in model_list:
             text = templates[model]#.replace("INSTRUCTION", instructions[lang])
+            prompt = instructions[lang] if model != 'minicpm' else ""
             origin_code = f'''
 import random
 
 def transform(data, num_sample: int, r: random.Random, dataset_name: str):
-    prompt = "{instructions[lang]}" + data['prompt'].strip().replace("    ", "\\t")
+    prompt = "{prompt}" + data['prompt'].strip().replace("    ", "\\t")
     temp_input = f"""{text}"""
     return {{"input": temp_input, "output": "", "processed_output": ""}}
     '''
