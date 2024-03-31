@@ -80,7 +80,7 @@ def auto_test(model):
     else:
         batch_size = 128   
     print(f"batch_size: {batch_size}")
-    model_tag = model.split('/')[-1]
+    model_tag = model_path[model].split('/')[-1]
     template_type = template_dict[model]
     for test_set in test_list:
         if model == 'aya-101':

@@ -46,23 +46,24 @@ def transform_humaneval(input_dir):
     dirs = os.listdir(input_dir)
     result_dict = {}
     for model in dirs:
-        for dir in os.listdir(os.path.join(input_dir, model)):
-            if os.path.isdir(os.path.join(input_dir, model, dir)):
-                for subdir in os.listdir(os.path.join(input_dir, model, dir)):
-                    if "humaneval" not in subdir:
-                        continue
-                    tag = subdir.split("_")[-2]
-                    cur_dir = os.path.join(input_dir, model, dir, subdir)
-                    if os.path.isdir(cur_dir):
-                        if "results.txt" in os.listdir(cur_dir):
-                            print(f"Skipping {subdir}")
+        for model_tag in os.listdir(os.path.join(input_dir, model)):
+            for dir in os.listdir(os.path.join(input_dir, model, model_tag)):
+                if os.path.isdir(os.path.join(input_dir, model, model_tag, dir)):
+                    for subdir in os.listdir(os.path.join(input_dir, model, model_tag, dir)):
+                        if "humaneval" not in subdir:
                             continue
-                        input_file = os.path.join(cur_dir, "instance.jsonl")
-                        reformat_file = reformat(input_file)
-                        if os.path.exists(reformat_file):
-                            entry_point(reformat_file)
-                            with open(os.path.join(cur_dir, "results.txt"), "r") as f:
-                                result_dict[tag] = eval(f.read())['pass@1']
+                        tag = subdir.split("_")[-2]
+                        cur_dir = os.path.join(input_dir, model, model_tag, dir, subdir)
+                        if os.path.isdir(cur_dir):
+                            if "results.txt" in os.listdir(cur_dir):
+                                print(f"Skipping {subdir}")
+                                continue
+                            input_file = os.path.join(cur_dir, "instance.jsonl")
+                            reformat_file = reformat(input_file)
+                            if os.path.exists(reformat_file):
+                                entry_point(reformat_file)
+                                with open(os.path.join(cur_dir, "results.txt"), "r") as f:
+                                    result_dict[tag] = eval(f.read())['pass@1']
     return result_dict
 
 if __name__ == "__main__":
