@@ -53,7 +53,8 @@ template_dict = {
     'okapi': 'okapi',
     'polyalpaca': 'polyalpaca',
     'polychat': 'polychat',
-    'minicpm': "minicpm"
+    'minicpm': "minicpm",
+    'minicpm-raw': "minicpm",
 }
 
 default_model_path = {
@@ -71,7 +72,8 @@ default_model_path = {
     'chimera-13b': "/data/public/wangshuo/UltraLink/models/chimera-inst-chat-13b",
     'guanaco-13b': "/data/public/wangshuo/UltraLink/models/guanaco-13b-hf",
     'guanaco-7b': "/data/public/wangshuo/UltraLink/models/Guanaco",
-    'minicpm': "/data/public/wangshuo/UltraLink/models/MiniCPM-2B-sft-bf16-vllm"
+    'minicpm': "/data/public/wangshuo/UltraLink/models/MiniCPM-2B-sft-bf16-vllm",
+    'minicpm-raw': "/data/public/wangshuo/UltraLink/models/MiniCPM-2B-history-vllm",
 }
 
 def auto_test(model):
