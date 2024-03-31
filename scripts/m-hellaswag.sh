@@ -7,10 +7,11 @@ MODEL_NAME=$2
 TASK=$3
 BATCH_SIZE=$4
 MODEL_TAG=$5
+CONFIG_TAG=$6
 URL="http://127.0.0.1:${PORT}/infer"  # URLs/gunicorn_conf.py 修改端口号
 NUMBER_OF_THREAD=1  # 线程数，一般设为 gpu数/per-proc-gpus
 CONFIG_PATH=configs/eval_config.json  # 评测文件路径[]
-OUTPUT_BASE_PATH=result/${TASK_NAME}/${MODEL_NAME}/${MODEL_TAG}   # 结果保存路径，与HF_MODEL_NAME一致
+OUTPUT_BASE_PATH=result/${TASK_NAME}/${MODEL_NAME}/${CONFIG_TAG}/${MODEL_TAG}   # 结果保存路径，与HF_MODEL_NAME一致
 
 # 步骤1
 # 选择评测的任务，生成评测 config文件。其中method=ppl，表示PPL式

@@ -15,6 +15,7 @@ parser.add_argument('--model_list', type=str, help='model list')
 parser.add_argument('--model_path', type=str, default="default", help='model path')
 parser.add_argument('--test_list', type=str, help='test list')
 parser.add_argument('--languages', type=str,  help='languages')
+parser.add_argument('--config_tag', type=str, default="default", help='config tag')
 args = parser.parse_args()
 
 
@@ -84,6 +85,7 @@ def auto_test(model):
     print(f"batch_size: {batch_size}")
     model_tag = model_path[model].split('/')[-1]
     template_type = template_dict[model]
+    config_tag = args.config_tag
     for test_set in test_list:
         if model == 'aya-101':
                 p = subprocess.Popen(f"""python URLs/transformer_url.py \
@@ -101,7 +103,7 @@ def auto_test(model):
         if test_set in all_test_list:
             template_type = "all"
         for lang in languages:
-            os.system(f"bash scripts/{test_set}.sh {port} {model} {test_set}-{template_type}-{lang} {batch_size} {model_tag}")
+            os.system(f"bash scripts/{test_set}.sh {port} {model} {test_set}-{template_type}-{lang} {batch_size} {model_tag}  {config_tag}")
         os.system(f"kill -9 {p.pid}")
         os.system(f"kill -9 {p.pid + 1}")
         # os.system(f"kill -9 %")
