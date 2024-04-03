@@ -4,7 +4,7 @@ import random
 
 def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     text = f"Question:\n{data['question']}\n"
-    text = f"""[INST] {text} [/INST]"""
+    text = f"""[INST] {prompt} [/INST]"""
     answer_prompt = f"Answer:\n"
     text = text + answer_prompt
     processed_correct_answer = correct_answer = [

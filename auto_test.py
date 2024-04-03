@@ -129,5 +129,5 @@ if __name__ == '__main__':
         for item in result:
             print(result[item])
             
-    # if 'omgeval' in test_list:
-    #     omg_eval(model_list, languages)
+    if 'omgeval' in test_list:
+        omg_eval(model_list, languages)

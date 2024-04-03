@@ -8,7 +8,8 @@ def transform(data, num_sample: int, r: random.Random, dataset_name: str):
     for idx, option in enumerate(options):
         text += f"{chr(65+idx)}. {option}\n"
     text = "Question:\n" + data["question"] + "\n" + "Exigence:\nChoisissez et répondez à la lettre de la bonne réponse.\n" +"Veuillez placer l\'option sélectionnée au début de la réponse.\n"+ "Option:\n" + text 
-    text = f"""<用户>{text}<AI>""" + "Answer:\n"
+    prompt = text
+    text = f"""<用户>{prompt}<AI>""" + "Answer:\n"
     index_of_correct_answer = list(data["target_scores"].values()).index(1)
     correct_answer = chr(65 + index_of_correct_answer)
     #一个俄语字母，一个英语字母

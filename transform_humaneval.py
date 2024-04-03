@@ -68,6 +68,6 @@ def transform_humaneval(input_dir):
     return result_dict
 
 if __name__ == "__main__":
-    input_dir = "/home/wanghaoyu/UltraEval/result/humaneval"
+    input_dir = "./humaneval"
     transform_humaneval(input_dir)
     

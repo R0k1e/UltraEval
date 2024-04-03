@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import subprocess
+import argparse
 
 ckpt_path = "/home/wanghaoyu/MiniCPM/finetune/MiniCPM-2B-history/ru_all/42_14_5e-5_100_1278_0.01/20240331111234"
 gpu_list = [0, 1, 2, 3]
@@ -9,6 +10,21 @@ base_port = 6325
 model_type = "minicpm-raw"
 test_list = 'humaneval'
 languages = 'ru'
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--gpu_id", type=int, default=0, help="gpu id to use")
+parser.add_argument("--port", type=int, default=6325, help="port to use")
+parser.add_argument("--model_type", type=str, default="minicpm-raw", help="model list to use")
+parser.add_argument("--test_list", type=str, default="humaneval", help="test list to use")
+parser.add_argument("--languages", type=str, default="ru", help="languages to use")
+parser.add_argument("--model_path", type=str, default=None, help="model path to use")
+args = parser.parse_args()
+gpu_list = args.gpu_id.split(",")
+base_port = args.port
+model_type = args.model_type
+test_list = args.test_list
+languages = args.languages
+ckpt_path = args.model_path
 
 ckpt_list = []
 for ckpt_dir in os.listdir(ckpt_path):

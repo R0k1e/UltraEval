@@ -9,6 +9,8 @@ wip-*
 .idea/
 RawData.zip
 result/
+old-result/
+
 logs*/
 .vscode/
 merged_results.jsonl

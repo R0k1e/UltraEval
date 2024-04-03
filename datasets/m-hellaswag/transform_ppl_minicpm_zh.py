@@ -2,7 +2,8 @@
 import random    
         
 def transform(data, num_sample: int, r: random.Random, dataset_name: str):
-    text = f"<用户>{data['question']}<AI> " 
+    prompt = data['question']
+    text = f"<用户>{prompt}<AI> " 
     correct_answer = [
         key for key, value in data["target_scores"].items() if value == 1
     ]

@@ -2,7 +2,8 @@
 import random
 from UltraEval.tasks.postprocess import GSM8KPost
 def transform(data, num_sample: int, r: random.Random, dataset_name: str):
-    text = f"<用户>{data['question']}<AI>"
+    prompt = data['question']
+    text = f"<用户>{prompt}<AI>"
     correct_answer = data["answer"]
     gsm8kp = GSM8KPost()
     _, processed_correct_answer = gsm8kp([], correct_answer)
