@@ -87,6 +87,7 @@ def auto_test(model):
     model_tag = model_path[model].split('/')[-1]
     template_type = template_dict[model]
     config_tag = args.config_tag
+    config_tag = args.config_tag
     for test_set in test_list:
         if model == 'aya-101':
                 p = subprocess.Popen(f"""python URLs/transformer_url.py \
