@@ -14,3 +14,6 @@ old-result/
 logs*/
 .vscode/
 merged_results.jsonl
+vllm.sh
+vllm6325.sh
+

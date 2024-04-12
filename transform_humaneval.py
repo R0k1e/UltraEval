@@ -57,7 +57,7 @@ def transform_humaneval(input_dir):
                             cur_dir = os.path.join(input_dir, model, config_tag, model_tag, dir, subdir)
                             if os.path.isdir(cur_dir):
                                 if "results.txt" in os.listdir(cur_dir):
-                                    print(f"Skipping {subdir}")
+                                    # print(f"Skipping {subdir}")
                                     continue
                                 input_file = os.path.join(cur_dir, "instance.jsonl")
                                 reformat_file = reformat(input_file)

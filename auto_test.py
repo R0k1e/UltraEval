@@ -101,7 +101,7 @@ def auto_test(model):
             --gpuid  {gpu_id}\
             --port {port}""", 
             shell=True)
-        time.sleep(120)
+        time.sleep(150)
         if test_set in all_test_list:
             template_type = "all"
         for lang in languages:
@@ -110,7 +110,7 @@ def auto_test(model):
         os.system(f"kill -9 {p.pid + 1}")
         # os.system(f"kill -9 %")
         # os.system(f"kill -9 %")
-        time.sleep(30)
+        time.sleep(10)
 if __name__ == '__main__':
 
     # no model_path specified, use the default path
@@ -122,12 +122,13 @@ if __name__ == '__main__':
     print(f"model_path: {model_path}")
     for model in model_list:
         auto_test(model)
-        
-    if 'humaneval' in test_list:
-        input_dir = "./result/humaneval"
-        result = transform_humaneval(input_dir)
-        for item in result:
-            print(result[item])
+    
+    # 原数据集bug，现已解决        
+    # if 'humaneval' in test_list:
+    #     input_dir = "./result/humaneval"
+    #     result = transform_humaneval(input_dir)
+    #     for item in result:
+    #         print(result[item])
             
     if 'omgeval' in test_list:
         omg_eval(model_list, languages)
