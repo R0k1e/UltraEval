@@ -57,6 +57,7 @@ template_dict = {
     'polychat': 'polychat',
     'minicpm': "minicpm",
     'minicpm-raw': "minicpm",
+    'minicpm-lora': "minicpm",
 }
 
 default_model_path = {
